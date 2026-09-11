@@ -1,4 +1,4 @@
-import { SupportedLocale } from '../types/content';
+import type { SupportedLocale } from '../types/content';
 
 /**
  * Calculates reading time and word count tailored to Western vs CJK languages.

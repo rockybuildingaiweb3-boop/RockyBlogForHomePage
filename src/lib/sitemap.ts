@@ -1,5 +1,5 @@
 import { siteConfig } from '../config/site.config';
-import { ArticleRecord, LogicalArticle } from '../types/content';
+import type { ArticleRecord, LogicalArticle } from '../types/content';
 
 /**
  * Generates an XML Sitemap with multilingual xhtml:link alternates.

@@ -1,5 +1,5 @@
 import { siteConfig } from '../config/site.config';
-import { ArticleRecord, SupportedLocale } from '../types/content';
+import type { ArticleRecord, SupportedLocale } from '../types/content';
 
 /**
  * Generates an RSS 2.0 XML feed for a specific language locale.

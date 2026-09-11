@@ -1,6 +1,5 @@
 import React from 'react';
-import { ArticleRecord } from '../../types/content';
-import { useRouter } from '../../lib/router';
+import type { ArticleRecord } from '../../types/content';
 
 export interface RelatedArticlesProps {
   articles: ArticleRecord[];
@@ -8,8 +7,6 @@ export interface RelatedArticlesProps {
 }
 
 export const RelatedArticles: React.FC<RelatedArticlesProps> = ({ articles, heading }) => {
-  const { navigate } = useRouter();
-
   if (!articles || articles.length === 0) return null;
 
   return (
@@ -19,10 +16,10 @@ export const RelatedArticles: React.FC<RelatedArticlesProps> = ({ articles, head
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {articles.map((item) => (
-          <article
+          <a
             key={item.frontmatter.slug}
-            onClick={() => navigate(`/${item.frontmatter.lang.toLowerCase()}/blog/${item.frontmatter.slug}`)}
-            className="group cursor-pointer flex flex-col justify-between"
+            href={`/${item.frontmatter.lang}/blog/${item.frontmatter.slug}`}
+            className="group flex flex-col justify-between"
           >
             <div className="space-y-3">
               <div className="aspect-[16/10] overflow-hidden rounded-sm bg-[#e8e6e1]">
@@ -46,7 +43,7 @@ export const RelatedArticles: React.FC<RelatedArticlesProps> = ({ articles, head
             <div className="mt-4 text-[11px] text-[#a3a3a3] font-mono">
               {item.frontmatter.pubDate} • {item.readingTimeMinutes} min
             </div>
-          </article>
+          </a>
         ))}
       </div>
     </section>

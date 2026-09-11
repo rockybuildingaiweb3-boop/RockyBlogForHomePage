@@ -1,5 +1,5 @@
 import { siteConfig } from '../config/site.config';
-import { ArticleRecord, SupportedLocale } from '../types/content';
+import type { ArticleRecord, SupportedLocale } from '../types/content';
 
 export interface SeoMetadata {
   title: string;

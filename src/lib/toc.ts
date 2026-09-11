@@ -1,4 +1,4 @@
-import { TocItem } from '../types/content';
+import type { TocItem } from '../types/content';
 
 /**
  * Extracts H2, H3, H4 headings from markdown body to generate Table of Contents (TOC).

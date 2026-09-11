@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { siteConfig } from '../../../config/site.config';
+import { contentRepo } from '../../../content';
+import { uiTranslations } from '../../../i18n/translations';
+import type { SupportedLocale } from '../../../types/content';
+
+export function getStaticPaths() {
+  const paths: { params: { locale: SupportedLocale; category: string } }[] = [];
+  for (const locale of siteConfig.supportedLocales) {
+    for (const cat of siteConfig.categories) {
+      paths.push({
+        params: { locale, category: cat.id },
+      });
+    }
+  }
+  return paths;
+}
+
+const { locale, category } = Astro.params as { locale: SupportedLocale; category: string };
+const t = uiTranslations[locale];
+const categoryDef = siteConfig.categories.find((c) => c.id.toLowerCase() === category.toLowerCase());
+const articles = contentRepo.getArticlesByCategory(locale, category);
+
+const categoryName = categoryDef ? categoryDef.name[locale] : category;
+const canonicalUrl = `${siteConfig.siteUrl}/${locale}/category/${category}`;
+
+const alternateHreflangs: Record<SupportedLocale, string> = {
+  'zh-CN': `${siteConfig.siteUrl}/zh-CN/category/${category}`,
+  'en': `${siteConfig.siteUrl}/en/category/${category}`,
+  'fr': `${siteConfig.siteUrl}/fr/category/${category}`,
+  'de': `${siteConfig.siteUrl}/de/category/${category}`,
+  'ja': `${siteConfig.siteUrl}/ja/category/${category}`,
+};
+
+const translationLinks: Record<SupportedLocale, { url: string; available: boolean }> = {
+  'zh-CN': { url: `/zh-CN/category/${category}`, available: true },
+  'en': { url: `/en/category/${category}`, available: true },
+  'fr': { url: `/fr/category/${category}`, available: true },
+  'de': { url: `/de/category/${category}`, available: true },
+  'ja': { url: `/ja/category/${category}`, available: true },
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${categoryName} — ${t.categoryLabel}`}
+  description={categoryDef?.description?.[locale]}
+  canonicalUrl={canonicalUrl}
+  alternateHreflangs={alternateHreflangs}
+  translationLinks={translationLinks}
+>
+  <div class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 py-8 sm:py-12 space-y-12">
+    <!-- Category Header -->
+    <header class="border-b border-[#e5e5e0] pb-8 space-y-4">
+      <div class="text-xs uppercase font-semibold tracking-widest text-[#737373]">
+        {t.categoryLabel}
+      </div>
+      <h1 class="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-[#1a1a1a]">
+        {categoryName}
+      </h1>
+      {categoryDef?.description?.[locale] && (
+        <p class="font-serif text-lg text-[#525252] max-w-2xl leading-relaxed">
+          {categoryDef.description[locale]}
+        </p>
+      )}
+
+      <!-- Category Navigation Tabs -->
+      <div class="flex flex-wrap gap-2 pt-4">
+        {siteConfig.categories.map((cat) => {
+          const isActive = cat.id === category;
+          return (
+            <a
+              href={`/${locale}/category/${cat.id}`}
+              class={`px-3 py-1.5 text-xs rounded-sm transition-colors ${
+                isActive
+                  ? 'bg-[#1a1a1a] text-[#faf9f6] font-medium'
+                  : 'bg-[#f5f4ef] text-[#525252] hover:bg-[#e8e6e1]'
+              }`}
+            >
+              {cat.name[locale]}
+            </a>
+          );
+        })}
+      </div>
+    </header>
+
+    <!-- Articles List -->
+    {articles.length === 0 ? (
+      <div class="py-16 text-center text-[#737373] font-serif">
+        {t.noArticlesFound}
+      </div>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        {articles.map((article) => (
+          <article class="group flex flex-col justify-between">
+            <div class="space-y-4">
+              <a
+                href={`/${locale}/blog/${article.frontmatter.slug}`}
+                class="aspect-[16/10] overflow-hidden rounded-sm bg-[#e8e6e1] block"
+              >
+                <img
+                  src={article.frontmatter.cover}
+                  alt={article.frontmatter.title}
+                  loading="lazy"
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </a>
+              <div class="text-xs font-mono text-[#a3a3a3]">
+                {article.frontmatter.pubDate}
+              </div>
+              <h2 class="font-serif text-xl font-bold text-[#1a1a1a] group-hover:underline leading-snug">
+                <a href={`/${locale}/blog/${article.frontmatter.slug}`}>
+                  {article.frontmatter.title}
+                </a>
+              </h2>
+              <p class="font-serif text-sm text-[#525252] line-clamp-3 leading-relaxed">
+                {article.frontmatter.description}
+              </p>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-[#ecebe6] flex items-center justify-between text-xs font-mono text-[#737373]">
+              <span>{t.readingTimeFormat(article.readingTimeMinutes)}</span>
+              <a
+                href={`/${locale}/blog/${article.frontmatter.slug}`}
+                class="text-[#1a1a1a] group-hover:translate-x-1 transition-transform"
+              >
+                Read →
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+  </div>
+</BaseLayout>

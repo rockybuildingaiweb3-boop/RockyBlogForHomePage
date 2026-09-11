@@ -1,0 +1,129 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { siteConfig } from '../../../config/site.config';
+import { contentRepo } from '../../../content';
+import { uiTranslations } from '../../../i18n/translations';
+import type { SupportedLocale } from '../../../types/content';
+
+export function getStaticPaths() {
+  const paths: { params: { locale: SupportedLocale; tag: string } }[] = [];
+  for (const locale of siteConfig.supportedLocales) {
+    const articles = contentRepo.getArticlesByLocale(locale, false);
+    const tags = new Set<string>();
+    for (const a of articles) {
+      for (const t of a.frontmatter.tags) {
+        tags.add(t);
+      }
+    }
+    for (const tag of tags) {
+      paths.push({
+        params: { locale, tag },
+      });
+    }
+  }
+  return paths;
+}
+
+const { locale, tag } = Astro.params as { locale: SupportedLocale; tag: string };
+const t = uiTranslations[locale];
+const articles = contentRepo.getArticlesByTag(locale, tag);
+const allArticles = contentRepo.getArticlesByLocale(locale, false);
+
+// Compute tag counts for cloud
+const tagCounts = new Map<string, number>();
+for (const a of allArticles) {
+  for (const tItem of a.frontmatter.tags) {
+    tagCounts.set(tItem, (tagCounts.get(tItem) || 0) + 1);
+  }
+}
+const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1]);
+
+const canonicalUrl = `${siteConfig.siteUrl}/${locale}/tag/${tag}`;
+
+const alternateHreflangs: Record<SupportedLocale, string> = {
+  'zh-CN': `${siteConfig.siteUrl}/zh-CN/tag/${tag}`,
+  'en': `${siteConfig.siteUrl}/en/tag/${tag}`,
+  'fr': `${siteConfig.siteUrl}/fr/tag/${tag}`,
+  'de': `${siteConfig.siteUrl}/de/tag/${tag}`,
+  'ja': `${siteConfig.siteUrl}/ja/tag/${tag}`,
+};
+
+const translationLinks: Record<SupportedLocale, { url: string; available: boolean }> = {
+  'zh-CN': { url: `/zh-CN/tag/${tag}`, available: true },
+  'en': { url: `/en/tag/${tag}`, available: true },
+  'fr': { url: `/fr/tag/${tag}`, available: true },
+  'de': { url: `/de/tag/${tag}`, available: true },
+  'ja': { url: `/ja/tag/${tag}`, available: true },
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={`#${tag} — ${t.tagsLabel}`}
+  description={`All articles tagged with #${tag}`}
+  canonicalUrl={canonicalUrl}
+  alternateHreflangs={alternateHreflangs}
+  translationLinks={translationLinks}
+>
+  <div class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 py-8 sm:py-12 space-y-12">
+    <header class="border-b border-[#e5e5e0] pb-8 space-y-4">
+      <div class="text-xs uppercase font-semibold tracking-widest text-[#737373]">
+        {t.tagsLabel}
+      </div>
+      <h1 class="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-[#1a1a1a]">
+        #{tag}
+      </h1>
+
+      <!-- Tag cloud pill list -->
+      <div class="flex flex-wrap gap-2 pt-4">
+        {sortedTags.map(([tItem, count]) => {
+          const isActive = tItem.toLowerCase() === tag.toLowerCase();
+          return (
+            <a
+              href={`/${locale}/tag/${encodeURIComponent(tItem)}`}
+              class={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-sm transition-colors ${
+                isActive
+                  ? 'bg-[#1a1a1a] text-[#faf9f6]'
+                  : 'bg-[#f5f4ef] text-[#525252] hover:bg-[#e8e6e1]'
+              }`}
+            >
+              <span>#{tItem}</span>
+              <span class="text-[10px] opacity-60">({count})</span>
+            </a>
+          );
+        })}
+      </div>
+    </header>
+
+    <div>
+      {articles.length === 0 ? (
+        <div class="py-12 text-center text-[#737373] font-serif">
+          {t.noArticlesFound}
+        </div>
+      ) : (
+        <div class="divide-y divide-[#ecebe6]">
+          {articles.map((article) => (
+            <article class="group py-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 hover:bg-[#faf8f2] px-4 -mx-4 rounded-sm transition-colors">
+              <div class="space-y-1">
+                <div class="text-xs font-mono text-[#737373]">
+                  {article.frontmatter.pubDate} • {article.frontmatter.category}
+                </div>
+                <h2 class="font-serif text-xl font-bold text-[#1a1a1a] group-hover:underline">
+                  <a href={`/${locale}/blog/${article.frontmatter.slug}`}>
+                    {article.frontmatter.title}
+                  </a>
+                </h2>
+                <p class="font-serif text-sm text-[#525252] line-clamp-2">
+                  {article.frontmatter.description}
+                </p>
+              </div>
+              <div class="text-xs font-mono text-[#a3a3a3] shrink-0">
+                {t.readingTimeFormat(article.readingTimeMinutes)}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</BaseLayout>

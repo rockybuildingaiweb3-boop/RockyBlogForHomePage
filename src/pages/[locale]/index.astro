@@ -1,0 +1,243 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { ArrowRight, BookOpen, Sparkles } from 'lucide-react';
+import { siteConfig } from '../../config/site.config';
+import { contentRepo } from '../../content';
+import { uiTranslations } from '../../i18n/translations';
+import type { SupportedLocale } from '../../types/content';
+
+export function getStaticPaths() {
+  return siteConfig.supportedLocales.map((locale) => ({
+    params: { locale },
+  }));
+}
+
+const { locale } = Astro.params as { locale: SupportedLocale };
+const t = uiTranslations[locale];
+
+const featuredArticles = contentRepo.getFeaturedArticles(locale, 3);
+const latestArticles = contentRepo.getLatestArticles(locale, 6);
+
+const alternateHreflangs: Record<SupportedLocale, string> = {
+  'zh-CN': `${siteConfig.siteUrl}/zh-CN`,
+  'en': `${siteConfig.siteUrl}/en`,
+  'fr': `${siteConfig.siteUrl}/fr`,
+  'de': `${siteConfig.siteUrl}/de`,
+  'ja': `${siteConfig.siteUrl}/ja`,
+};
+
+const translationLinks: Record<SupportedLocale, { url: string; available: boolean }> = {
+  'zh-CN': { url: '/zh-CN', available: true },
+  'en': { url: '/en', available: true },
+  'fr': { url: '/fr', available: true },
+  'de': { url: '/de', available: true },
+  'ja': { url: '/ja', available: true },
+};
+---
+
+<BaseLayout
+  locale={locale}
+  canonicalUrl={`${siteConfig.siteUrl}/${locale}`}
+  alternateHreflangs={alternateHreflangs}
+  translationLinks={translationLinks}
+>
+  <div class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 space-y-24 py-8 sm:py-12">
+    <!-- 1. Publication Hero Masthead -->
+    <section class="border-b border-[#e5e5e0] pb-16">
+      <div class="max-w-4xl space-y-6">
+        <div class="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-[#737373]">
+          <Sparkles className="h-3.5 w-3.5 text-[#d97706]" />
+          <span>Independent Digital Periodical</span>
+        </div>
+        <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-[#1a1a1a] leading-[1.08]">
+          {siteConfig.siteName[locale]}
+        </h1>
+        <p class="font-serif text-xl sm:text-2xl text-[#525252] leading-relaxed max-w-2xl">
+          {siteConfig.siteDescription[locale]}
+        </p>
+      </div>
+    </section>
+
+    <!-- 2. Featured Section (Editorial Magazine Layout) -->
+    {featuredArticles.length > 0 && (
+      <section class="space-y-10">
+        <div class="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-[#e5e5e0] pb-4 gap-2">
+          <div>
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#1a1a1a]">
+              {t.featuredTitle}
+            </h2>
+            <p class="text-xs text-[#737373] mt-1 font-sans">{t.featuredSubtitle}</p>
+          </div>
+          <a
+            href={`/${locale}/blog`}
+            class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-[#525252] hover:text-[#1a1a1a] transition-colors"
+          >
+            <span>{t.navBlog}</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </a>
+        </div>
+
+        <!-- Lead Featured Article -->
+        {featuredArticles[0] && (
+          <article class="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <a
+              href={`/${locale}/blog/${featuredArticles[0].frontmatter.slug}`}
+              class="lg:col-span-8 overflow-hidden rounded-sm bg-[#e8e6e1] aspect-[16/10] block"
+            >
+              <img
+                src={featuredArticles[0].frontmatter.cover}
+                alt={featuredArticles[0].frontmatter.title}
+                class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+              />
+            </a>
+            <div class="lg:col-span-4 space-y-4">
+              <span class="inline-block text-[11px] font-semibold tracking-widest uppercase text-[#737373]">
+                {featuredArticles[0].frontmatter.category}
+              </span>
+              <h3 class="font-serif text-2xl sm:text-3xl font-bold text-[#1a1a1a] leading-tight group-hover:underline">
+                <a href={`/${locale}/blog/${featuredArticles[0].frontmatter.slug}`}>
+                  {featuredArticles[0].frontmatter.title}
+                </a>
+              </h3>
+              <p class="font-serif text-sm leading-relaxed text-[#525252] line-clamp-3">
+                {featuredArticles[0].frontmatter.description}
+              </p>
+              <div class="pt-2 text-xs font-mono text-[#737373]">
+                {featuredArticles[0].frontmatter.pubDate} • {t.readingTimeFormat(featuredArticles[0].readingTimeMinutes)}
+              </div>
+            </div>
+          </article>
+        )}
+
+        <!-- Sub-featured articles grid -->
+        {featuredArticles.length > 1 && (
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
+            {featuredArticles.slice(1).map((item) => (
+              <article class="group space-y-4">
+                <a
+                  href={`/${locale}/blog/${item.frontmatter.slug}`}
+                  class="aspect-[16/9] overflow-hidden rounded-sm bg-[#e8e6e1] block"
+                >
+                  <img
+                    src={item.frontmatter.cover}
+                    alt={item.frontmatter.title}
+                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </a>
+                <span class="text-[11px] font-semibold tracking-widest uppercase text-[#737373]">
+                  {item.frontmatter.category}
+                </span>
+                <h4 class="font-serif text-xl font-bold text-[#1a1a1a] leading-snug group-hover:underline">
+                  <a href={`/${locale}/blog/${item.frontmatter.slug}`}>
+                    {item.frontmatter.title}
+                  </a>
+                </h4>
+                <p class="font-serif text-sm text-[#525252] line-clamp-2">
+                  {item.frontmatter.description}
+                </p>
+                <div class="text-xs font-mono text-[#737373]">
+                  {item.frontmatter.pubDate} • {t.readingTimeFormat(item.readingTimeMinutes)}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+    )}
+
+    <!-- 3. Latest Dispatches Section -->
+    <section class="space-y-10">
+      <div class="border-b border-[#e5e5e0] pb-4">
+        <h2 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#1a1a1a]">
+          {t.latestArticlesTitle}
+        </h2>
+        <p class="text-xs text-[#737373] mt-1 font-sans">{t.latestArticlesSubtitle}</p>
+      </div>
+
+      <div class="divide-y divide-[#ecebe6]">
+        {latestArticles.map((article) => (
+          <article class="group py-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-start hover:bg-[#faf8f2] px-4 -mx-4 rounded-sm transition-colors">
+            <div class="md:col-span-3 text-xs font-mono text-[#737373] pt-1">
+              <div>{article.frontmatter.pubDate}</div>
+              <div class="text-[#a3a3a3] mt-1">{t.readingTimeFormat(article.readingTimeMinutes)}</div>
+            </div>
+
+            <div class="md:col-span-9 space-y-2">
+              <span class="text-[10px] font-semibold tracking-widest uppercase text-[#737373]">
+                {article.frontmatter.category}
+              </span>
+              <h3 class="font-serif text-xl sm:text-2xl font-bold text-[#1a1a1a] group-hover:underline leading-snug">
+                <a href={`/${locale}/blog/${article.frontmatter.slug}`}>
+                  {article.frontmatter.title}
+                </a>
+              </h3>
+              <p class="font-serif text-sm text-[#525252] leading-relaxed">
+                {article.frontmatter.description}
+              </p>
+              <div class="flex flex-wrap gap-2 pt-2">
+                {article.frontmatter.tags.map((tag) => (
+                  <span class="text-[11px] font-mono text-[#737373] bg-[#f0eee6] px-2 py-0.5 rounded-sm">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <!-- 4. Subject Indexes / Categories -->
+    <section class="rounded-sm border border-[#e5e5e0] bg-[#f5f4ef] p-8 sm:p-12 space-y-8">
+      <div>
+        <h2 class="font-serif text-2xl font-bold text-[#1a1a1a]">
+          {t.categoriesTitle}
+        </h2>
+        <p class="text-xs text-[#737373] mt-1 font-sans">
+          按核心学科与观察主题索引的所有出版物
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {siteConfig.categories.map((cat) => {
+          const count = contentRepo.getArticlesByCategory(locale, cat.id).length;
+          return (
+            <a
+              href={`/${locale}/category/${cat.id}`}
+              class="group p-5 bg-[#faf9f6] border border-[#e5e5e0] rounded-sm text-left hover:border-[#1a1a1a] transition-all space-y-3 block"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-serif text-base font-bold text-[#1a1a1a] group-hover:underline">
+                  {cat.name[locale]}
+                </span>
+                <span class="text-xs font-mono text-[#737373]">{count}</span>
+              </div>
+              <p class="text-xs text-[#525252] line-clamp-2 leading-relaxed">
+                {cat.description?.[locale]}
+              </p>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+
+    <!-- 5. Editorial Philosophy Colophon -->
+    <section class="text-center py-12 border-t border-[#e5e5e0] space-y-4">
+      <BookOpen className="h-6 w-6 text-[#737373] mx-auto" />
+      <h3 class="font-serif text-xl font-bold text-[#1a1a1a]">
+        {siteConfig.author.name}
+      </h3>
+      <p class="font-serif text-sm max-w-xl mx-auto text-[#525252] leading-relaxed italic">
+        "{siteConfig.author.bio[locale]}"
+      </p>
+      <div class="pt-2">
+        <a
+          href={`/${locale}/about`}
+          class="text-xs uppercase tracking-widest font-semibold text-[#1a1a1a] hover:underline"
+        >
+          {t.navAbout} →
+        </a>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

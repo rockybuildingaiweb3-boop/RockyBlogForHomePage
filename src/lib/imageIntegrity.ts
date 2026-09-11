@@ -1,4 +1,6 @@
-import { ArticleFrontmatter } from '../types/content';
+import fs from 'node:fs';
+import path from 'node:path';
+import type { ArticleFrontmatter } from '../types/content';
 
 export interface IntegrityCheckResult {
   valid: boolean;
@@ -8,7 +10,7 @@ export interface IntegrityCheckResult {
 
 /**
  * Validates local image references and frontmatter completeness.
- * Can be run during build or static verification.
+ * Strictly verifies that local image assets exist on disk.
  */
 export function validateArticleIntegrity(
   frontmatter: ArticleFrontmatter,
@@ -17,10 +19,16 @@ export function validateArticleIntegrity(
 ): IntegrityCheckResult {
   const errors: string[] = [];
   const warnings: string[] = [];
+  const dir = path.dirname(filePath);
 
   // 1. Verify Cover image existence and format
   if (!frontmatter.cover || frontmatter.cover.trim() === '') {
     errors.push(`[${filePath}] Cover image path is missing.`);
+  } else if (frontmatter.cover.startsWith('./') || frontmatter.cover.startsWith('../')) {
+    const coverPath = path.resolve(dir, frontmatter.cover);
+    if (!fs.existsSync(coverPath)) {
+      errors.push(`[${filePath}] Broken local cover image: "${frontmatter.cover}" does not exist on disk.`);
+    }
   }
 
   // 2. Scan for inline Markdown image references: ![alt](url)
@@ -34,6 +42,11 @@ export function validateArticleIntegrity(
     }
     if (!src || src.trim() === '') {
       errors.push(`[${filePath}] Image tag has an empty src attribute.`);
+    } else if (src.startsWith('./') || src.startsWith('../')) {
+      const assetPath = path.resolve(dir, src);
+      if (!fs.existsSync(assetPath)) {
+        errors.push(`[${filePath}] Broken local inline image: "${src}" does not exist on disk.`);
+      }
     }
   }
 
@@ -44,6 +57,12 @@ export function validateArticleIntegrity(
     const alt = match[2];
     if (!alt || alt.trim() === '') {
       warnings.push(`[${filePath}] <Figure> with src "${src}" has empty alt attribute.`);
+    }
+    if (src.startsWith('./') || src.startsWith('../')) {
+      const assetPath = path.resolve(dir, src);
+      if (!fs.existsSync(assetPath)) {
+        errors.push(`[${filePath}] Broken local <Figure> image: "${src}" does not exist on disk.`);
+      }
     }
   }
 

@@ -1,5 +1,5 @@
 import { ArticleFrontmatterSchema } from '../schema/content.schema';
-import {
+import type {
   ArticleFrontmatter,
   ArticleRecord,
   LogicalArticle,
@@ -166,6 +166,24 @@ export class ContentRepository {
       } catch (err: any) {
         this.validationErrors.push(`[${file.filePath}] Frontmatter error: ${err.message}`);
       }
+    }
+
+    // Validate uniqueness of slug per locale and single translation per locale per translationId
+    const localeSlugSet = new Set<string>();
+    const translationLocaleSet = new Set<string>();
+
+    for (const record of records) {
+      const slugKey = `${record.frontmatter.lang}:${record.frontmatter.slug.toLowerCase()}`;
+      if (localeSlugSet.has(slugKey)) {
+        this.validationErrors.push(`[${record.filePath}] Duplicate slug "${record.frontmatter.slug}" for locale "${record.frontmatter.lang}".`);
+      }
+      localeSlugSet.add(slugKey);
+
+      const transKey = `${record.frontmatter.translationId}:${record.frontmatter.lang}`;
+      if (translationLocaleSet.has(transKey)) {
+        this.validationErrors.push(`[${record.filePath}] Conflicting translationId: "${record.frontmatter.translationId}" already contains a translation for locale "${record.frontmatter.lang}".`);
+      }
+      translationLocaleSet.add(transKey);
     }
 
     // Group into LogicalArticles by translationId

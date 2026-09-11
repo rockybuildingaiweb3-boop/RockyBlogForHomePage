@@ -1,4 +1,4 @@
-import { CategoryDefinition, SupportedLocale } from '../types/content';
+import type { CategoryDefinition, SupportedLocale } from '../types/content';
 
 export interface SiteConfig {
   siteName: Record<SupportedLocale, string>;

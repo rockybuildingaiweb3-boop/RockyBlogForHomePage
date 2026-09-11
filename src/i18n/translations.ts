@@ -1,4 +1,4 @@
-import { SupportedLocale } from '../types/content';
+import type { SupportedLocale } from '../types/content';
 
 export interface UiTranslations {
   // Navigation

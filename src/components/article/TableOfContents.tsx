@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { List } from 'lucide-react';
-import { TocItem } from '../../types/content';
+import type { TocItem } from '../../types/content';
 
 export interface TocProps {
   items: TocItem[];

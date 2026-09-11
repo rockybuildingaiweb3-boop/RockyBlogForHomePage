@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ArrowLeft } from 'lucide-react';
+import { siteConfig } from '../config/site.config';
+import { uiTranslations } from '../i18n/translations';
+
+const locale = siteConfig.defaultLocale;
+const t = uiTranslations[locale];
+---
+
+<BaseLayout
+  locale={locale}
+  title="404 — Not Found"
+  description="The requested page or editorial dispatch could not be located."
+>
+  <div class="mx-auto max-w-2xl px-4 py-24 text-center space-y-6">
+    <div class="text-xs font-mono text-[#737373] uppercase tracking-widest">
+      Status 404
+    </div>
+    <h1 class="font-serif text-4xl sm:text-5xl font-bold text-[#1a1a1a]">
+      {t.pageNotFoundTitle}
+    </h1>
+    <p class="font-serif text-base text-[#525252] leading-relaxed max-w-md mx-auto">
+      {t.pageNotFoundMessage}
+    </p>
+    <div class="pt-4">
+      <a
+        href={`/${locale}/blog`}
+        class="inline-flex items-center gap-2 px-5 py-2.5 border border-[#1a1a1a] text-xs uppercase tracking-wider font-medium text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-[#faf9f6] transition-colors rounded-sm"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        <span>{t.backToBlog}</span>
+      </a>
+    </div>
+  </div>
+</BaseLayout>
