@@ -1,0 +1,6 @@
+{
+  "name": "个人观点与技术博客",
+  "description": "以文字、图片、排版和个人观点为核心的五语言个人数字出版物与静态博客",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
