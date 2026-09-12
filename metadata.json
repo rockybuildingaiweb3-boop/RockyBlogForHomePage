@@ -1,6 +1,6 @@
 {
-  "name": "个人技术博客与系统设计",
-  "description": "面向 IT 从业者的个人技术博客与长期知识积累系统，涵盖软件工程、AI 与 Agent 实践、前端技术、架构与技术笔记。",
+  "name": "Rocky — Personal Technical Journal",
+  "description": "Personal Technical Journal & Editorial Engineering Blog focusing on software engineering, AI/LLM/agents, frontend systems, and architecture.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

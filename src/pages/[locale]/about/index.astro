@@ -315,6 +315,11 @@ const copy = aboutCopy[locale] || aboutCopy['zh-CN'];
       </h2>
 
       <div class="flex flex-wrap gap-4 pt-2">
+        {!siteConfig.author.social.email && !siteConfig.author.social.github && !siteConfig.author.social.x && !siteConfig.author.social.linkedin && (
+          <p class="text-xs font-mono text-[#88847b] border border-[#e6e2d8] p-4 bg-[#f2efe9] w-full max-w-md">
+            {copy.noContact}
+          </p>
+        )}
         {siteConfig.author.social.email && (
           <a
             href={siteConfig.author.social.email}

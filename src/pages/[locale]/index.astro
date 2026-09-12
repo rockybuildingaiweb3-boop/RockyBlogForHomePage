@@ -72,42 +72,42 @@ const heroStatements: Record<SupportedLocale, { quote: string; sub: string }> = 
 
 const currentHero = heroStatements[locale] || heroStatements['en'];
 
-// Category sub-topics for the large Topic Index
-const categorySubtopics: Record<string, Record<SupportedLocale, string>> = {
+// Category sub-topics for the large Topic Index structured as discipline lists
+const categorySubtopicsList: Record<string, Record<SupportedLocale, string[]>> = {
   engineering: {
-    'zh-CN': '系统架构 · 分布式计算 · 代码演进 · 稳定性保障 · 软件工程实践',
-    'en': 'Software architecture · Distributed systems · Code evolution · Reliability',
-    'fr': 'Architecture logicielle · Systèmes distribués · Évolution du code · Fiabilité',
-    'de': 'Softwarearchitektur · Verteilte Systeme · Code-Evolution · Zuverlässigkeit',
-    'ja': 'ソフトウェアアーキテクチャ · 分散システム · コード進化 · 信頼性',
+    'zh-CN': ['软件系统架构', '分布式设计', '稳定性与容灾'],
+    'en': ['Software architecture', 'Systems', 'Reliability'],
+    'fr': ['Architecture logicielle', 'Systèmes distribués', 'Fiabilité'],
+    'de': ['Softwarearchitektur', 'Verteilte Systeme', 'Zuverlässigkeit'],
+    'ja': ['ソフトウェアアーキテクチャ', '分散システム', '信頼性工学'],
   },
   ai: {
-    'zh-CN': '大语言模型 · 自律智能体 (Agents) · 提示工程 · 生产环境落地',
-    'en': 'LLM pipelines · Autonomous agents · Prompt engineering · Production deployment',
-    'fr': 'Pipelines LLM · Agents autonomes · Ingénierie des invites · Mise en production',
-    'de': 'LLM-Pipelines · Autonome Agenten · Prompt-Engineering · Produktiver Einsatz',
-    'ja': 'LLMパイプライン · 自律エージェント · プロンプト工学 · 本番展開',
+    'zh-CN': ['大语言模型 (LLM)', '自律智能体 (Agents)', 'AI 生产落地'],
+    'en': ['LLM', 'Agents', 'AI systems'],
+    'fr': ['LLM', 'Agents autonomes', 'Systèmes IA'],
+    'de': ['LLM', 'Agenten', 'KI-Systeme'],
+    'ja': ['大規模言語モデル (LLM)', '自律エージェント', 'AIシステム構築'],
   },
   frontend: {
-    'zh-CN': '现代 Web 框架 · React / Astro · 渲染机制 · 浏览器性能优化',
-    'en': 'Modern web frameworks · React / Astro · Runtime rendering · Performance',
-    'fr': 'Frameworks Web modernes · React / Astro · Rendu navigateur · Performance',
-    'de': 'Moderne Webframeworks · React / Astro · Browser-Rendering · Web-Performance',
-    'ja': 'モダンWebフレームワーク · React / Astro · レンダリング機構 · パフォーマンス',
+    'zh-CN': ['React / Web', '编译与渲染', '性能工程'],
+    'en': ['React', 'Web', 'Performance'],
+    'fr': ['React', 'Web', 'Performance'],
+    'de': ['React', 'Web', 'Performance'],
+    'ja': ['React', 'Web', 'パフォーマンス'],
   },
   'design-ux': {
-    'zh-CN': '设计系统 · 排版韵律 · 交互层次 · 无障碍访问 · 数字出版品质',
-    'en': 'Design systems · Typographic rhythm · Interaction hierarchy · Accessibility',
-    'fr': 'Design systems · Rythme typographique · Hiérarchie d’interaction · Accessibilité',
-    'de': 'Design-Systeme · Typografischer Rhythmus · Interaktionshierarchie · Barrierefreiheit',
-    'ja': 'デザインシステム · タイポグラフィのリズム · 相互作用の階層 · アクセシビリティ',
+    'zh-CN': ['设计系统', '出版排版', '交互与可用性'],
+    'en': ['Design systems', 'Typography', 'Interaction & UX'],
+    'fr': ['Design systems', 'Typographie', 'Interaction & UX'],
+    'de': ['Design-Systeme', 'Typografie', 'Interaktion & UX'],
+    'ja': ['デザインシステム', '組版美学', 'UXとアクセシビリティ'],
   },
   notes: {
-    'zh-CN': '技术复盘 · 疑难排错 · 工具链横评 · 实验记录 · 踩坑经验',
-    'en': 'Technical postmortems · Troubleshooting · Tooling benchmarks · Lab logs',
-    'fr': 'Retours d’expérience · Dépannage · Benchmarks d’outils · Notes de laboratoire',
-    'de': 'Postmortems · Fehlerdiagnose · Tooling-Vergleiche · Experimentelle Notizen',
-    'ja': '技術ポストモーテム · トラブルシューティング · ツール比較 · 実験ログ',
+    'zh-CN': ['架构复盘', '疑难排错', '实验记录'],
+    'en': ['Postmortems', 'Troubleshooting', 'Experiments'],
+    'fr': ['Retours d’expérience', 'Dépannage', 'Notes de lab'],
+    'de': ['Postmortems', 'Fehlerdiagnose', 'Experimente'],
+    'ja': ['事後検証 (Postmortem)', 'トラブルシューティング', '実験ノート'],
   },
 };
 ---
@@ -450,35 +450,41 @@ const categorySubtopics: Record<string, Record<SupportedLocale, string>> = {
         </span>
       </div>
 
-      <!-- Editorial Index Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#e6e2d8] border border-[#e6e2d8]">
+      <!-- Editorial Disciplines Architecture (No SaaS Cards) -->
+      <div class="grid grid-cols-1 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-[#e6e2d8] border-y border-[#e6e2d8]">
         {siteConfig.categories.map((cat, idx) => {
           const count = getArticlesByCategory(allPosts, locale, cat.id).length;
-          const subtopics = categorySubtopics[cat.id]?.[locale] || '';
+          const subtopics = categorySubtopicsList[cat.id]?.[locale] || [];
 
           return (
             <a
               href={`/${locale}/category/${cat.id}`}
-              class="group bg-[#f9f8f5] hover:bg-[#ffffff] p-8 space-y-4 transition-colors block text-left"
+              class="group bg-transparent hover:bg-[#f3f0e8]/60 p-6 lg:p-8 space-y-6 transition-colors block text-left"
             >
               <div class="flex items-baseline justify-between text-xs font-mono text-[#88847b]">
                 <span class="font-bold text-[#1b1a18]">0{idx + 1}</span>
-                <span>{count} {count === 1 ? 'ARTICLE' : 'ARTICLES'}</span>
+                <span class="text-[10px]">{count} {count === 1 ? 'DOC' : 'DOCS'}</span>
               </div>
 
-              <h3 class="font-serif text-2xl font-bold tracking-tight text-[#1b1a18] group-hover:text-[#1e3a5f] transition-colors">
-                {cat.name[locale]}
-              </h3>
+              <div class="space-y-1">
+                <h3 class="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#1b1a18] group-hover:text-[#1e3a5f] transition-colors uppercase">
+                  {cat.name[locale]}
+                </h3>
+              </div>
 
-              <p class="font-serif text-xs text-[#57544e] leading-relaxed">
-                {cat.description?.[locale]}
-              </p>
+              <ul class="space-y-2 text-xs font-mono text-[#57544e]">
+                {subtopics.map((item) => (
+                  <li class="flex items-baseline gap-2">
+                    <span class="text-[#cfc9be]">·</span>
+                    <span class="leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
 
-              {subtopics && (
-                <div class="pt-2 text-[11px] font-mono text-[#88847b] border-t border-[#f0ece3] leading-relaxed">
-                  {subtopics}
-                </div>
-              )}
+              <div class="pt-2 text-[11px] font-mono text-[#88847b] group-hover:text-[#1b1a18] group-hover:underline underline-offset-4 flex items-center gap-1">
+                <span>Explore</span>
+                <span>→</span>
+              </div>
             </a>
           );
         })}
