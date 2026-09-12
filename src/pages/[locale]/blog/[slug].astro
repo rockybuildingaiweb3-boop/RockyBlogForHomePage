@@ -9,12 +9,19 @@ import { AlsoPublishedOn } from '../../../components/article/AlsoPublishedOn';
 import { PreviousNext } from '../../../components/article/PreviousNext';
 import { RelatedArticles } from '../../../components/article/RelatedArticles';
 import { siteConfig } from '../../../config/site.config';
-import { contentRepo } from '../../../content';
+import {
+  getTranslationsForArticle,
+  getRelatedArticles,
+  getAdjacentArticles,
+  validateContentIntegrity,
+} from '../../../lib/content';
+import { calculateReadingMetrics } from '../../../lib/readingTime';
 import { localeDisplayNames, uiTranslations } from '../../../i18n/translations';
 import type { SupportedLocale, TocItem } from '../../../types/content';
 
 export async function getStaticPaths() {
   const entries = await getCollection('blog');
+  validateContentIntegrity(entries);
   const published = entries.filter((e) => !e.data.draft);
 
   return published.map((entry) => ({
@@ -27,16 +34,44 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { locale, slug } = Astro.params as { locale: SupportedLocale; slug: string };
+const { locale } = Astro.params as { locale: SupportedLocale; slug: string };
 const t = uiTranslations[locale];
 
 const { Content, headings } = await render(entry);
 
-// Extract article record from content repository
-const articleRecord = contentRepo.getArticleBySlug(locale, slug);
-const logical = articleRecord ? contentRepo.getLogicalArticle(articleRecord.frontmatter.translationId) : undefined;
-const relatedArticles = articleRecord ? contentRepo.getRelatedArticles(articleRecord, 3) : [];
-const { previous, next } = articleRecord ? contentRepo.getAdjacentArticles(articleRecord) : {};
+const allPosts = await getCollection('blog');
+const translations = getTranslationsForArticle(allPosts, entry.data.translationId);
+const relatedArticlesRaw = getRelatedArticles(entry, allPosts, 3);
+const { previous: prevEntry, next: nextEntry } = getAdjacentArticles(entry, allPosts);
+
+const readingMin = calculateReadingMetrics(entry.body || '', locale).minutes;
+
+const relatedArticles = relatedArticlesRaw.map((rel) => ({
+  slug: rel.data.slug,
+  lang: rel.data.lang,
+  title: rel.data.title,
+  description: rel.data.description,
+  category: rel.data.category,
+  cover: typeof rel.data.cover === 'string' ? rel.data.cover : rel.data.cover.src,
+  pubDate: rel.data.pubDate,
+  readingTimeMinutes: calculateReadingMetrics(rel.body || '', rel.data.lang).minutes,
+}));
+
+const previous = prevEntry
+  ? {
+      slug: prevEntry.data.slug,
+      lang: prevEntry.data.lang,
+      title: prevEntry.data.title,
+    }
+  : undefined;
+
+const next = nextEntry
+  ? {
+      slug: nextEntry.data.slug,
+      lang: nextEntry.data.lang,
+      title: nextEntry.data.title,
+    }
+  : undefined;
 
 // Build Table of Contents items from Astro headings
 const tocItems: TocItem[] = headings
@@ -57,21 +92,20 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
   'ja': { url: '/ja/blog', available: false },
 };
 
-if (logical) {
-  for (const loc of siteConfig.supportedLocales) {
-    const translation = logical.translations[loc];
-    if (translation) {
-      const url = `${siteConfig.siteUrl}/${loc}/blog/${translation.frontmatter.slug}`;
-      alternateHreflangs[loc] = url;
-      translationLinks[loc] = {
-        url: `/${loc}/blog/${translation.frontmatter.slug}`,
-        available: true,
-      };
-    }
+for (const loc of siteConfig.supportedLocales) {
+  const translation = translations[loc];
+  if (translation) {
+    const url = `${siteConfig.siteUrl}/${loc}/blog/${translation.data.slug}`;
+    alternateHreflangs[loc] = url;
+    translationLinks[loc] = {
+      url: `/${loc}/blog/${translation.data.slug}`,
+      available: true,
+    };
   }
 }
 
 const canonicalUrl = `${siteConfig.siteUrl}/${locale}/blog/${entry.data.slug}`;
+const coverSrc = typeof entry.data.cover === 'string' ? entry.data.cover : (entry.data.cover as any)?.src;
 
 // JSON-LD Schema.org BlogPosting metadata
 const jsonLd = {
@@ -97,10 +131,8 @@ const jsonLd = {
     '@type': 'WebPage',
     '@id': canonicalUrl,
   },
-  image: typeof entry.data.cover === 'string' ? entry.data.cover : (entry.data.cover as any)?.src,
+  image: coverSrc,
 };
-
-const coverSrc = typeof entry.data.cover === 'string' ? entry.data.cover : (entry.data.cover as any)?.src;
 ---
 
 <BaseLayout
@@ -151,15 +183,11 @@ const coverSrc = typeof entry.data.cover === 'string' ? entry.data.cover : (entr
             </span>
           </>
         )}
-        {articleRecord && (
-          <>
-            <span class="text-[#d4d4d4]">•</span>
-            <span class="flex items-center gap-1 text-[#737373] font-mono">
-              <Clock className="h-3 w-3" />
-              {t.readingTimeFormat(articleRecord.readingTimeMinutes)}
-            </span>
-          </>
-        )}
+        <span class="text-[#d4d4d4]">•</span>
+        <span class="flex items-center gap-1 text-[#737373] font-mono">
+          <Clock className="h-3 w-3" />
+          {t.readingTimeFormat(readingMin)}
+        </span>
       </div>
 
       <h1 class="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#1a1a1a] leading-[1.12]">

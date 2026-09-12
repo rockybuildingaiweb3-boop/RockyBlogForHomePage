@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
+import { getCollection } from 'astro:content';
 import { siteConfig } from '../../config/site.config';
-import { contentRepo } from '../../content';
 import { generateRssFeed } from '../../lib/rss';
 import type { SupportedLocale } from '../../types/content';
 
@@ -12,8 +12,8 @@ export function getStaticPaths() {
 
 export const GET: APIRoute = async ({ params }) => {
   const locale = params.locale as SupportedLocale;
-  const articles = contentRepo.getArticlesByLocale(locale, false);
-  const xml = generateRssFeed(locale, articles);
+  const allPosts = await getCollection('blog');
+  const xml = generateRssFeed(locale, allPosts);
 
   return new Response(xml, {
     status: 200,

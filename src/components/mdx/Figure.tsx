@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface FigureProps {
-  src: string;
+  src: string | { src: string };
   alt: string;
   caption?: string;
   layout?: 'standard' | 'wide' | 'full';
@@ -17,6 +17,7 @@ export const Figure: React.FC<FigureProps> = ({
   aspectRatio = '16/9',
   credit,
 }) => {
+  const imageSrc = typeof src === 'string' ? src : (src as any)?.src || '';
   const layoutClasses = {
     standard: 'my-10 max-w-3xl mx-auto',
     wide: 'my-14 -mx-4 sm:-mx-8 md:-mx-16 lg:-mx-24 max-w-5xl mx-auto',
@@ -35,7 +36,7 @@ export const Figure: React.FC<FigureProps> = ({
     <figure className={`group relative block ${layoutClasses}`}>
       <div className={`overflow-hidden rounded-sm bg-[#e8e6e1] transition-all duration-300 ${aspectClass}`}>
         <img
-          src={src}
+          src={imageSrc}
           alt={alt}
           loading="lazy"
           decoding="async"

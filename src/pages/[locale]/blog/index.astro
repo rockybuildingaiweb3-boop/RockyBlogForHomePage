@@ -1,7 +1,9 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { siteConfig } from '../../../config/site.config';
-import { contentRepo } from '../../../content';
+import { getArticlesByLocale } from '../../../lib/content';
+import { calculateReadingMetrics } from '../../../lib/readingTime';
 import { uiTranslations } from '../../../i18n/translations';
 import type { SupportedLocale } from '../../../types/content';
 
@@ -13,7 +15,9 @@ export function getStaticPaths() {
 
 const { locale } = Astro.params as { locale: SupportedLocale };
 const t = uiTranslations[locale];
-const articles = contentRepo.getArticlesByLocale(locale, false);
+
+const allPosts = await getCollection('blog');
+const articles = getArticlesByLocale(allPosts, locale, false);
 
 const alternateHreflangs: Record<SupportedLocale, string> = {
   'zh-CN': `${siteConfig.siteUrl}/zh-CN/blog`,
@@ -30,6 +34,11 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
   'de': { url: '/de/blog', available: true },
   'ja': { url: '/ja/blog', available: true },
 };
+
+function getCoverSrc(cover: any): string {
+  if (!cover) return '';
+  return typeof cover === 'string' ? cover : cover.src;
+}
 ---
 
 <BaseLayout
@@ -56,45 +65,48 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
       </div>
     ) : (
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {articles.map((article) => (
-          <article class="group flex flex-col justify-between">
-            <div class="space-y-4">
-              <a
-                href={`/${locale}/blog/${article.frontmatter.slug}`}
-                class="aspect-[16/10] overflow-hidden rounded-sm bg-[#e8e6e1] block"
-              >
-                <img
-                  src={article.frontmatter.cover}
-                  alt={article.frontmatter.title}
-                  loading="lazy"
-                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-              </a>
-              <div class="flex items-center justify-between text-[11px] font-semibold tracking-wider uppercase text-[#737373]">
-                <span>{article.frontmatter.category}</span>
-                <span class="font-mono text-[#a3a3a3]">{article.frontmatter.pubDate}</span>
-              </div>
-              <h2 class="font-serif text-xl font-bold text-[#1a1a1a] group-hover:underline leading-snug">
-                <a href={`/${locale}/blog/${article.frontmatter.slug}`}>
-                  {article.frontmatter.title}
+        {articles.map((article) => {
+          const readingMin = calculateReadingMetrics(article.body || '', locale).minutes;
+          return (
+            <article class="group flex flex-col justify-between">
+              <div class="space-y-4">
+                <a
+                  href={`/${locale}/blog/${article.data.slug}`}
+                  class="aspect-[16/10] overflow-hidden rounded-sm bg-[#e8e6e1] block"
+                >
+                  <img
+                    src={getCoverSrc(article.data.cover)}
+                    alt={article.data.title}
+                    loading="lazy"
+                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
                 </a>
-              </h2>
-              <p class="font-serif text-sm text-[#525252] line-clamp-3 leading-relaxed">
-                {article.frontmatter.description}
-              </p>
-            </div>
+                <div class="flex items-center justify-between text-[11px] font-semibold tracking-wider uppercase text-[#737373]">
+                  <span>{article.data.category}</span>
+                  <span class="font-mono text-[#a3a3a3]">{article.data.pubDate}</span>
+                </div>
+                <h2 class="font-serif text-xl font-bold text-[#1a1a1a] group-hover:underline leading-snug">
+                  <a href={`/${locale}/blog/${article.data.slug}`}>
+                    {article.data.title}
+                  </a>
+                </h2>
+                <p class="font-serif text-sm text-[#525252] line-clamp-3 leading-relaxed">
+                  {article.data.description}
+                </p>
+              </div>
 
-            <div class="mt-6 pt-4 border-t border-[#ecebe6] flex items-center justify-between text-xs font-mono text-[#737373]">
-              <span>{t.readingTimeFormat(article.readingTimeMinutes)}</span>
-              <a
-                href={`/${locale}/blog/${article.frontmatter.slug}`}
-                class="text-[#1a1a1a] group-hover:translate-x-1 transition-transform"
-              >
-                Read →
-              </a>
-            </div>
-          </article>
-        ))}
+              <div class="mt-6 pt-4 border-t border-[#ecebe6] flex items-center justify-between text-xs font-mono text-[#737373]">
+                <span>{t.readingTimeFormat(readingMin)}</span>
+                <a
+                  href={`/${locale}/blog/${article.data.slug}`}
+                  class="text-[#1a1a1a] group-hover:translate-x-1 transition-transform"
+                >
+                  Read →
+                </a>
+              </div>
+            </article>
+          );
+        })}
       </div>
     )}
   </div>

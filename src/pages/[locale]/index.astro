@@ -1,8 +1,14 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 import { siteConfig } from '../../config/site.config';
-import { contentRepo } from '../../content';
+import {
+  getFeaturedArticles,
+  getLatestArticles,
+  getArticlesByCategory,
+} from '../../lib/content';
+import { calculateReadingMetrics } from '../../lib/readingTime';
 import { uiTranslations } from '../../i18n/translations';
 import type { SupportedLocale } from '../../types/content';
 
@@ -15,8 +21,9 @@ export function getStaticPaths() {
 const { locale } = Astro.params as { locale: SupportedLocale };
 const t = uiTranslations[locale];
 
-const featuredArticles = contentRepo.getFeaturedArticles(locale, 3);
-const latestArticles = contentRepo.getLatestArticles(locale, 6);
+const allPosts = await getCollection('blog');
+const featuredArticles = getFeaturedArticles(allPosts, locale, 3);
+const latestArticles = getLatestArticles(allPosts, locale, 6);
 
 const alternateHreflangs: Record<SupportedLocale, string> = {
   'zh-CN': `${siteConfig.siteUrl}/zh-CN`,
@@ -33,6 +40,11 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
   'de': { url: '/de', available: true },
   'ja': { url: '/ja', available: true },
 };
+
+function getCoverSrc(cover: any): string {
+  if (!cover) return '';
+  return typeof cover === 'string' ? cover : cover.src;
+}
 ---
 
 <BaseLayout
@@ -81,29 +93,29 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
         {featuredArticles[0] && (
           <article class="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <a
-              href={`/${locale}/blog/${featuredArticles[0].frontmatter.slug}`}
+              href={`/${locale}/blog/${featuredArticles[0].data.slug}`}
               class="lg:col-span-8 overflow-hidden rounded-sm bg-[#e8e6e1] aspect-[16/10] block"
             >
               <img
-                src={featuredArticles[0].frontmatter.cover}
-                alt={featuredArticles[0].frontmatter.title}
+                src={getCoverSrc(featuredArticles[0].data.cover)}
+                alt={featuredArticles[0].data.title}
                 class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
               />
             </a>
             <div class="lg:col-span-4 space-y-4">
               <span class="inline-block text-[11px] font-semibold tracking-widest uppercase text-[#737373]">
-                {featuredArticles[0].frontmatter.category}
+                {featuredArticles[0].data.category}
               </span>
               <h3 class="font-serif text-2xl sm:text-3xl font-bold text-[#1a1a1a] leading-tight group-hover:underline">
-                <a href={`/${locale}/blog/${featuredArticles[0].frontmatter.slug}`}>
-                  {featuredArticles[0].frontmatter.title}
+                <a href={`/${locale}/blog/${featuredArticles[0].data.slug}`}>
+                  {featuredArticles[0].data.title}
                 </a>
               </h3>
               <p class="font-serif text-sm leading-relaxed text-[#525252] line-clamp-3">
-                {featuredArticles[0].frontmatter.description}
+                {featuredArticles[0].data.description}
               </p>
               <div class="pt-2 text-xs font-mono text-[#737373]">
-                {featuredArticles[0].frontmatter.pubDate} • {t.readingTimeFormat(featuredArticles[0].readingTimeMinutes)}
+                {featuredArticles[0].data.pubDate} • {t.readingTimeFormat(calculateReadingMetrics(featuredArticles[0].body || '', locale).minutes)}
               </div>
             </div>
           </article>
@@ -112,34 +124,37 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
         <!-- Sub-featured articles grid -->
         {featuredArticles.length > 1 && (
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
-            {featuredArticles.slice(1).map((item) => (
-              <article class="group space-y-4">
-                <a
-                  href={`/${locale}/blog/${item.frontmatter.slug}`}
-                  class="aspect-[16/9] overflow-hidden rounded-sm bg-[#e8e6e1] block"
-                >
-                  <img
-                    src={item.frontmatter.cover}
-                    alt={item.frontmatter.title}
-                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </a>
-                <span class="text-[11px] font-semibold tracking-widest uppercase text-[#737373]">
-                  {item.frontmatter.category}
-                </span>
-                <h4 class="font-serif text-xl font-bold text-[#1a1a1a] leading-snug group-hover:underline">
-                  <a href={`/${locale}/blog/${item.frontmatter.slug}`}>
-                    {item.frontmatter.title}
+            {featuredArticles.slice(1).map((item) => {
+              const readingMin = calculateReadingMetrics(item.body || '', locale).minutes;
+              return (
+                <article class="group space-y-4">
+                  <a
+                    href={`/${locale}/blog/${item.data.slug}`}
+                    class="aspect-[16/9] overflow-hidden rounded-sm bg-[#e8e6e1] block"
+                  >
+                    <img
+                      src={getCoverSrc(item.data.cover)}
+                      alt={item.data.title}
+                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                   </a>
-                </h4>
-                <p class="font-serif text-sm text-[#525252] line-clamp-2">
-                  {item.frontmatter.description}
-                </p>
-                <div class="text-xs font-mono text-[#737373]">
-                  {item.frontmatter.pubDate} • {t.readingTimeFormat(item.readingTimeMinutes)}
-                </div>
-              </article>
-            ))}
+                  <span class="text-[11px] font-semibold tracking-widest uppercase text-[#737373]">
+                    {item.data.category}
+                  </span>
+                  <h4 class="font-serif text-xl font-bold text-[#1a1a1a] leading-snug group-hover:underline">
+                    <a href={`/${locale}/blog/${item.data.slug}`}>
+                      {item.data.title}
+                    </a>
+                  </h4>
+                  <p class="font-serif text-sm text-[#525252] line-clamp-2">
+                    {item.data.description}
+                  </p>
+                  <div class="text-xs font-mono text-[#737373]">
+                    {item.data.pubDate} • {t.readingTimeFormat(readingMin)}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </section>
@@ -155,35 +170,38 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
       </div>
 
       <div class="divide-y divide-[#ecebe6]">
-        {latestArticles.map((article) => (
-          <article class="group py-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-start hover:bg-[#faf8f2] px-4 -mx-4 rounded-sm transition-colors">
-            <div class="md:col-span-3 text-xs font-mono text-[#737373] pt-1">
-              <div>{article.frontmatter.pubDate}</div>
-              <div class="text-[#a3a3a3] mt-1">{t.readingTimeFormat(article.readingTimeMinutes)}</div>
-            </div>
-
-            <div class="md:col-span-9 space-y-2">
-              <span class="text-[10px] font-semibold tracking-widest uppercase text-[#737373]">
-                {article.frontmatter.category}
-              </span>
-              <h3 class="font-serif text-xl sm:text-2xl font-bold text-[#1a1a1a] group-hover:underline leading-snug">
-                <a href={`/${locale}/blog/${article.frontmatter.slug}`}>
-                  {article.frontmatter.title}
-                </a>
-              </h3>
-              <p class="font-serif text-sm text-[#525252] leading-relaxed">
-                {article.frontmatter.description}
-              </p>
-              <div class="flex flex-wrap gap-2 pt-2">
-                {article.frontmatter.tags.map((tag) => (
-                  <span class="text-[11px] font-mono text-[#737373] bg-[#f0eee6] px-2 py-0.5 rounded-sm">
-                    #{tag}
-                  </span>
-                ))}
+        {latestArticles.map((article) => {
+          const readingMin = calculateReadingMetrics(article.body || '', locale).minutes;
+          return (
+            <article class="group py-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-start hover:bg-[#faf8f2] px-4 -mx-4 rounded-sm transition-colors">
+              <div class="md:col-span-3 text-xs font-mono text-[#737373] pt-1">
+                <div>{article.data.pubDate}</div>
+                <div class="text-[#a3a3a3] mt-1">{t.readingTimeFormat(readingMin)}</div>
               </div>
-            </div>
-          </article>
-        ))}
+
+              <div class="md:col-span-9 space-y-2">
+                <span class="text-[10px] font-semibold tracking-widest uppercase text-[#737373]">
+                  {article.data.category}
+                </span>
+                <h3 class="font-serif text-xl sm:text-2xl font-bold text-[#1a1a1a] group-hover:underline leading-snug">
+                  <a href={`/${locale}/blog/${article.data.slug}`}>
+                    {article.data.title}
+                  </a>
+                </h3>
+                <p class="font-serif text-sm text-[#525252] leading-relaxed">
+                  {article.data.description}
+                </p>
+                <div class="flex flex-wrap gap-2 pt-2">
+                  {article.data.tags.map((tag: string) => (
+                    <span class="text-[11px] font-mono text-[#737373] bg-[#f0eee6] px-2 py-0.5 rounded-sm">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
 
@@ -194,13 +212,13 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
           {t.categoriesTitle}
         </h2>
         <p class="text-xs text-[#737373] mt-1 font-sans">
-          按核心学科与观察主题索引的所有出版物
+          Subject and thematic index across publications
         </p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {siteConfig.categories.map((cat) => {
-          const count = contentRepo.getArticlesByCategory(locale, cat.id).length;
+          const count = getArticlesByCategory(allPosts, locale, cat.id).length;
           return (
             <a
               href={`/${locale}/category/${cat.id}`}

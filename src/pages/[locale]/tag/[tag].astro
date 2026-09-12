@@ -1,17 +1,22 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { siteConfig } from '../../../config/site.config';
-import { contentRepo } from '../../../content';
+import { getArticlesByTag, getArticlesByLocale } from '../../../lib/content';
+import { calculateReadingMetrics } from '../../../lib/readingTime';
 import { uiTranslations } from '../../../i18n/translations';
 import type { SupportedLocale } from '../../../types/content';
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
+  const allPosts = await getCollection('blog');
+  const published = allPosts.filter((e) => !e.data.draft);
   const paths: { params: { locale: SupportedLocale; tag: string } }[] = [];
+
   for (const locale of siteConfig.supportedLocales) {
-    const articles = contentRepo.getArticlesByLocale(locale, false);
+    const localePosts = published.filter((e) => e.data.lang === locale);
     const tags = new Set<string>();
-    for (const a of articles) {
-      for (const t of a.frontmatter.tags) {
+    for (const a of localePosts) {
+      for (const t of a.data.tags) {
         tags.add(t);
       }
     }
@@ -26,13 +31,15 @@ export function getStaticPaths() {
 
 const { locale, tag } = Astro.params as { locale: SupportedLocale; tag: string };
 const t = uiTranslations[locale];
-const articles = contentRepo.getArticlesByTag(locale, tag);
-const allArticles = contentRepo.getArticlesByLocale(locale, false);
+
+const allPosts = await getCollection('blog');
+const articles = getArticlesByTag(allPosts, locale, tag);
+const allArticles = getArticlesByLocale(allPosts, locale, false);
 
 // Compute tag counts for cloud
 const tagCounts = new Map<string, number>();
 for (const a of allArticles) {
-  for (const tItem of a.frontmatter.tags) {
+  for (const tItem of a.data.tags) {
     tagCounts.set(tItem, (tagCounts.get(tItem) || 0) + 1);
   }
 }
@@ -102,26 +109,29 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
         </div>
       ) : (
         <div class="divide-y divide-[#ecebe6]">
-          {articles.map((article) => (
-            <article class="group py-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 hover:bg-[#faf8f2] px-4 -mx-4 rounded-sm transition-colors">
-              <div class="space-y-1">
-                <div class="text-xs font-mono text-[#737373]">
-                  {article.frontmatter.pubDate} • {article.frontmatter.category}
+          {articles.map((article) => {
+            const readingMin = calculateReadingMetrics(article.body || '', locale).minutes;
+            return (
+              <article class="group py-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 hover:bg-[#faf8f2] px-4 -mx-4 rounded-sm transition-colors">
+                <div class="space-y-1">
+                  <div class="text-xs font-mono text-[#737373]">
+                    {article.data.pubDate} • {article.data.category}
+                  </div>
+                  <h2 class="font-serif text-xl font-bold text-[#1a1a1a] group-hover:underline">
+                    <a href={`/${locale}/blog/${article.data.slug}`}>
+                      {article.data.title}
+                    </a>
+                  </h2>
+                  <p class="font-serif text-sm text-[#525252] line-clamp-2">
+                    {article.data.description}
+                  </p>
                 </div>
-                <h2 class="font-serif text-xl font-bold text-[#1a1a1a] group-hover:underline">
-                  <a href={`/${locale}/blog/${article.frontmatter.slug}`}>
-                    {article.frontmatter.title}
-                  </a>
-                </h2>
-                <p class="font-serif text-sm text-[#525252] line-clamp-2">
-                  {article.frontmatter.description}
-                </p>
-              </div>
-              <div class="text-xs font-mono text-[#a3a3a3] shrink-0">
-                {t.readingTimeFormat(article.readingTimeMinutes)}
-              </div>
-            </article>
-          ))}
+                <div class="text-xs font-mono text-[#a3a3a3] shrink-0">
+                  {t.readingTimeFormat(readingMin)}
+                </div>
+              </article>
+            );
+          })}
         </div>
       )}
     </div>

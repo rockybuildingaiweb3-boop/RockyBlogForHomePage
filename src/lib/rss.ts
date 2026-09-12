@@ -1,36 +1,38 @@
 import { siteConfig } from '../config/site.config';
-import type { ArticleRecord, SupportedLocale } from '../types/content';
+import type { BlogPost } from './content';
+import type { SupportedLocale } from '../types/content';
 
 /**
  * Generates an RSS 2.0 XML feed for a specific language locale.
+ * Single Source of Truth: Astro Content Collections
  */
-export function generateRssFeed(locale: SupportedLocale, articles: ArticleRecord[]): string {
+export function generateRssFeed(locale: SupportedLocale, articles: BlogPost[]): string {
   // Only published articles, sorted DESC
   const publishedArticles = articles
-    .filter((a) => a.frontmatter.lang === locale && !a.frontmatter.draft)
-    .sort((a, b) => new Date(b.frontmatter.pubDate).getTime() - new Date(a.frontmatter.pubDate).getTime());
+    .filter((a) => a.data.lang === locale && !a.data.draft)
+    .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
 
   const siteTitle = siteConfig.siteName[locale];
   const siteDesc = siteConfig.siteDescription[locale];
-  const feedUrl = `${siteConfig.siteUrl}/${locale.toLowerCase()}/rss.xml`;
-  const siteLink = `${siteConfig.siteUrl}/${locale.toLowerCase()}`;
+  const feedUrl = `${siteConfig.siteUrl}/${locale}/rss.xml`;
+  const siteLink = `${siteConfig.siteUrl}/${locale}`;
 
   const itemsXml = publishedArticles
     .map((article) => {
-      const articleUrl = `${siteConfig.siteUrl}/${locale.toLowerCase()}/blog/${article.frontmatter.slug}`;
-      const pubDateRfc822 = new Date(article.frontmatter.pubDate).toUTCString();
-      const categoriesXml = article.frontmatter.tags
+      const articleUrl = `${siteConfig.siteUrl}/${locale}/blog/${article.data.slug}`;
+      const pubDateRfc822 = new Date(article.data.pubDate).toUTCString();
+      const categoriesXml = article.data.tags
         .map((tag) => `<category>${escapeXml(tag)}</category>`)
         .join('');
 
       return `
     <item>
-      <title>${escapeXml(article.frontmatter.title)}</title>
+      <title>${escapeXml(article.data.title)}</title>
       <link>${articleUrl}</link>
       <guid isPermaLink="true">${articleUrl}</guid>
-      <description>${escapeXml(article.frontmatter.description)}</description>
+      <description>${escapeXml(article.data.description)}</description>
       <pubDate>${pubDateRfc822}</pubDate>
-      <author>${escapeXml(article.frontmatter.author || siteConfig.author.name)}</author>
+      <author>${escapeXml(article.data.author || siteConfig.author.name)}</author>
       ${categoriesXml}
     </item>`;
     })

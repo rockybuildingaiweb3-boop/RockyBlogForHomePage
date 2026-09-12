@@ -1,8 +1,10 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { Calendar } from 'lucide-react';
 import { siteConfig } from '../../../config/site.config';
-import { contentRepo } from '../../../content';
+import { getArchiveByYear } from '../../../lib/content';
+import { calculateReadingMetrics } from '../../../lib/readingTime';
 import { uiTranslations } from '../../../i18n/translations';
 import type { SupportedLocale } from '../../../types/content';
 
@@ -14,7 +16,9 @@ export function getStaticPaths() {
 
 const { locale } = Astro.params as { locale: SupportedLocale };
 const t = uiTranslations[locale];
-const archiveMap = contentRepo.getArchiveByYear(locale);
+
+const allPosts = await getCollection('blog');
+const archiveMap = getArchiveByYear(allPosts, locale);
 const years = Array.from(archiveMap.keys()).sort((a, b) => b - a);
 
 const canonicalUrl = `${siteConfig.siteUrl}/${locale}/archive`;
@@ -74,29 +78,32 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
               </div>
 
               <div class="divide-y divide-[#ecebe6]">
-                {articles.map((article) => (
-                  <article class="group py-5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 hover:bg-[#faf8f2] px-3 -mx-3 rounded-sm transition-colors">
-                    <div class="space-y-1 max-w-3xl">
-                      <div class="flex items-center gap-2 text-xs font-mono text-[#737373]">
-                        <Calendar className="h-3 w-3" />
-                        <span>{article.frontmatter.pubDate}</span>
-                        <span class="text-[#d4d4d4]">•</span>
-                        <span class="uppercase text-[10px] tracking-wider font-sans text-[#525252]">
-                          {article.frontmatter.category}
-                        </span>
+                {articles.map((article) => {
+                  const readingMin = calculateReadingMetrics(article.body || '', locale).minutes;
+                  return (
+                    <article class="group py-5 flex flex-col sm:flex-row sm:items-baseline justify-between gap-3 hover:bg-[#faf8f2] px-3 -mx-3 rounded-sm transition-colors">
+                      <div class="space-y-1 max-w-3xl">
+                        <div class="flex items-center gap-2 text-xs font-mono text-[#737373]">
+                          <Calendar className="h-3 w-3" />
+                          <span>{article.data.pubDate}</span>
+                          <span class="text-[#d4d4d4]">•</span>
+                          <span class="uppercase text-[10px] tracking-wider font-sans text-[#525252]">
+                            {article.data.category}
+                          </span>
+                        </div>
+                        <h2 class="font-serif text-lg sm:text-xl font-bold text-[#1a1a1a] group-hover:underline">
+                          <a href={`/${locale}/blog/${article.data.slug}`}>
+                            {article.data.title}
+                          </a>
+                        </h2>
                       </div>
-                      <h2 class="font-serif text-lg sm:text-xl font-bold text-[#1a1a1a] group-hover:underline">
-                        <a href={`/${locale}/blog/${article.frontmatter.slug}`}>
-                          {article.frontmatter.title}
-                        </a>
-                      </h2>
-                    </div>
 
-                    <div class="text-xs font-mono text-[#a3a3a3] shrink-0">
-                      {t.readingTimeFormat(article.readingTimeMinutes)}
-                    </div>
-                  </article>
-                ))}
+                      <div class="text-xs font-mono text-[#a3a3a3] shrink-0">
+                        {t.readingTimeFormat(readingMin)}
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
             </section>
           );
