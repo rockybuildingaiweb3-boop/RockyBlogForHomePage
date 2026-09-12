@@ -1,5 +1,15 @@
 import type { CategoryDefinition, SupportedLocale } from '../types/content';
 
+export const VALID_CATEGORIES = [
+  'engineering',
+  'ai',
+  'frontend',
+  'design-ux',
+  'notes',
+] as const;
+
+export type ValidCategory = (typeof VALID_CATEGORIES)[number];
+
 export interface SiteConfig {
   siteName: Record<SupportedLocale, string>;
   siteDescription: Record<SupportedLocale, string>;

@@ -11,20 +11,19 @@
       "minLength": 1
     },
     "pubDate": {
-      "type": "string",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+      "type": "string"
     },
     "updatedDate": {
-      "type": "string",
-      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+      "type": "string"
     },
     "slug": {
       "type": "string",
-      "minLength": 1
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
     },
     "translationId": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
     },
     "lang": {
       "type": "string",
@@ -38,7 +37,13 @@
     },
     "category": {
       "type": "string",
-      "minLength": 1
+      "enum": [
+        "engineering",
+        "ai",
+        "frontend",
+        "design-ux",
+        "notes"
+      ]
     },
     "tags": {
       "minItems": 1,
@@ -78,8 +83,7 @@
             "minLength": 1
           },
           "url": {
-            "type": "string",
-            "pattern": "^https?:\\/\\/"
+            "type": "string"
           },
           "type": {
             "type": "string",

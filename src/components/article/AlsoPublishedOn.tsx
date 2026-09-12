@@ -1,6 +1,11 @@
 import React from 'react';
 import { ExternalLink as LinkIcon } from 'lucide-react';
-import type { ExternalLink } from '../../types/content';
+
+export interface ExternalLink {
+  platform: string;
+  url: string;
+  type: 'announcement' | 'full-post' | 'adapted';
+}
 
 export interface AlsoPublishedOnProps {
   links: ExternalLink[];

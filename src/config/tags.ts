@@ -313,6 +313,40 @@ export const tagsConfig: Record<string, TagDefinition> = {
       'ja': '開発者向け生産性向上ツール、CLI、デバッガ、自動化スクリプト。',
     },
   },
+  'internal': {
+    id: 'internal',
+    name: {
+      'zh-CN': '内部笔记',
+      'en': 'Internal',
+      'fr': 'Interne',
+      'de': 'Intern',
+      'ja': '内部ノート',
+    },
+    description: {
+      'zh-CN': '团队与个人内部实践与复盘草稿。',
+      'en': 'Internal engineering records and review drafts.',
+      'fr': 'Notes et bilans d’ingénierie internes.',
+      'de': 'Interne Notizen und Entwürfe.',
+      'ja': '内部技術記録および草案。',
+    },
+  },
+  'draft': {
+    id: 'draft',
+    name: {
+      'zh-CN': '草稿',
+      'en': 'Draft',
+      'fr': 'Brouillon',
+      'de': 'Entwurf',
+      'ja': '下書き',
+    },
+    description: {
+      'zh-CN': '未正式对外公开发布的文章草稿。',
+      'en': 'Unpublished editorial and engineering drafts.',
+      'fr': 'Brouillons d’ingénierie non publiés.',
+      'de': 'Unveröffentlichte Entwürfe.',
+      'ja': '未公開の執筆下書き。',
+    },
+  },
 };
 
 /**
