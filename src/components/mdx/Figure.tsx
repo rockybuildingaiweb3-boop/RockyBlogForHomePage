@@ -58,9 +58,9 @@ export const Figure: React.FC<FigureProps> = ({
         />
       </div>
       {(caption || credit) && (
-        <figcaption className="mt-3 flex flex-wrap items-baseline justify-between gap-2 px-1 text-xs text-[#737373]">
-          {caption && <span className="font-serif italic text-[#525252]">{caption}</span>}
-          {credit && <span className="text-[11px] tracking-wider uppercase text-[#a3a3a3]">Photo: {credit}</span>}
+        <figcaption className="mt-3 flex flex-wrap items-baseline justify-between gap-2 px-1 text-xs text-[#88847b] font-mono">
+          {caption && <span className="font-serif italic text-[#57544e]">{caption}</span>}
+          {credit && <span className="text-[11px] tracking-wider uppercase text-[#88847b]">Source: {credit}</span>}
         </figcaption>
       )}
     </figure>
