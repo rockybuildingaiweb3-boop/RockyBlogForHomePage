@@ -26,17 +26,17 @@ export const PreviousNext: React.FC<PreviousNextProps> = ({
   if (!previous && !next) return null;
 
   return (
-    <nav className="my-12 grid grid-cols-1 sm:grid-cols-2 gap-6 border-t border-[#e5e5e0] pt-8">
+    <nav className="my-16 grid grid-cols-1 sm:grid-cols-2 gap-8 border-t border-[#e6e2d8] pt-10">
       {previous ? (
         <a
           href={`/${previous.lang}/blog/${previous.slug}`}
-          className="group flex flex-col items-start text-left p-4 rounded-sm border border-[#e5e5e0] bg-[#faf9f6] hover:border-[#1a1a1a] transition-all"
+          className="group flex flex-col items-start text-left space-y-2 py-2"
         >
-          <span className="inline-flex items-center gap-1.5 text-xs text-[#737373] group-hover:text-[#1a1a1a] transition-colors mb-2">
-            <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-[#88847b] group-hover:text-[#1b1a18] transition-colors">
+            <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" />
             {prevLabel}
           </span>
-          <span className="font-serif text-sm font-semibold text-[#1a1a1a] line-clamp-2 leading-snug">
+          <span className="font-serif text-lg font-bold text-[#1b1a18] group-hover:text-[#1e3a5f] line-clamp-2 leading-snug transition-colors">
             {previous.title}
           </span>
         </a>
@@ -47,13 +47,13 @@ export const PreviousNext: React.FC<PreviousNextProps> = ({
       {next && (
         <a
           href={`/${next.lang}/blog/${next.slug}`}
-          className="group flex flex-col items-end text-right p-4 rounded-sm border border-[#e5e5e0] bg-[#faf9f6] hover:border-[#1a1a1a] transition-all sm:col-start-2"
+          className="group flex flex-col items-end text-right space-y-2 py-2 sm:col-start-2"
         >
-          <span className="inline-flex items-center gap-1.5 text-xs text-[#737373] group-hover:text-[#1a1a1a] transition-colors mb-2">
+          <span className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-[#88847b] group-hover:text-[#1b1a18] transition-colors">
             {nextLabel}
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
           </span>
-          <span className="font-serif text-sm font-semibold text-[#1a1a1a] line-clamp-2 leading-snug">
+          <span className="font-serif text-lg font-bold text-[#1b1a18] group-hover:text-[#1e3a5f] line-clamp-2 leading-snug transition-colors">
             {next.title}
           </span>
         </a>

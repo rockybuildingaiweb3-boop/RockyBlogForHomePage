@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { Mail, Terminal, Layers, Cpu, Code2 } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { siteConfig } from '../../../config/site.config';
 import { uiTranslations } from '../../../i18n/translations';
 import type { SupportedLocale } from '../../../types/content';
@@ -32,97 +32,115 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
   'ja': { url: '/ja/about', available: true },
 };
 
-const aboutCopy = {
+const aboutCopy: Record<
+  SupportedLocale,
+  {
+    badge: string;
+    whoTitle: string;
+    whoText: string;
+    focusTitle: string;
+    focusItems: Array<{ title: string; desc: string }>;
+    whyTitle: string;
+    whyText: string;
+    stackTitle: string;
+    stackText: string;
+    stackItems: string[];
+    contactTitle: string;
+    noContact: string;
+  }
+> = {
   'zh-CN': {
-    badge: '技术背景与建站说明',
-    whoTitle: '关于作者与背景',
-    whoText: '专注于软件工程、分布式系统与 AI 智能体落地的 IT 工程师。日常主要围绕大型系统架构、现代前端工程、大语言模型工作流与交互体验展开实践。',
-    focusTitle: '核心关注领域',
+    badge: '工程实践 · 知识架构',
+    whoTitle: '关于作者与工程背景',
+    whoText: '专注于系统架构、AI 智能体工程落地与现代前端 Web 技术的软件工程师。长期从事高可用系统设计与研发效能实践。',
+    focusTitle: '核心专注领域',
     focusItems: [
-      { title: '软件工程与系统架构', desc: '可维护系统设计、模块化解耦、长期代码演进规律与分布式实践。' },
-      { title: 'AI / LLM / Agent 实践', desc: '自律智能体系统、工具调用、提示工程与企业级生产环境落地。' },
-      { title: '前端与 Web 技术', desc: '现代 Web 框架、静态构建、浏览器内部渲染机制与 Web 性能工程。' },
-      { title: '设计与体验工程', desc: '设计系统单一可信源、交互反馈、排版韵律与无障碍访问体验。' },
-      { title: '技术笔记与项目复盘', desc: '实验日志、工具链横向评测、疑难排查排错总结与工程复盘。' },
+      { title: '软件工程与系统架构', desc: '关注分布式系统的可维护性、模块演进、接口契约与长期稳定性实践。' },
+      { title: 'AI、LLM 与自律智能体', desc: '探索大语言模型在生产工程中的落地架构、Agent 工作流、工具调用与评估体系。' },
+      { title: '现代前端与渲染性能', desc: '深度理解浏览器内部运作、静态编译与现代框架（Astro/React）的最佳平衡。' },
+      { title: '设计系统与用户体验', desc: '融合出版物排版美学与严苛的数字工程规范，追求高信息密度与无障碍访问。' },
+      { title: '技术复盘与实验记录', desc: '记录真实的疑难排错（Troubleshooting）、工程折衷（Trade-offs）与踩坑教训。' },
     ],
-    whyTitle: '为什么维护这个技术博客',
-    whyText: '在快速更迭的数字浪潮中，碎片化的社交网络无法承载深度的工程经验与体系化的认知演进。维护这个技术自留地的初衷，是将日常工程实践、AI 实验以及技术踩坑完整沉淀成文，构建一个可供未来 5–10 年持续回溯、修正与扩展的个人数字知识库。',
-    stackTitle: '本站技术架构与工程考量',
-    stackText: '为了确保网站在未来 5–10 年内具备零维护成本、极速加载与长期可移植性，本站严格奉行纯静态架构（Static by Default）：',
+    whyTitle: '为什么构建这个知识系统',
+    whyText: '面对信息爆炸与社交媒体碎片化的当下，建立一个完全由自己掌控、面向未来 5–10 年的个人知识沉淀体系。不追逐瞬时流量，只记录经得起时间检验的工程实践与深度思考。',
+    stackTitle: '网站系统架构与技术选型',
+    stackText: '坚决执行“纯静态优先（Static by Default）”与“长寿架构”原则：',
     stackItems: [
-      'Astro Static Site Generation（纯静态 HTML/CSS 预渲染，无服务器端运行时，无动态数据库）',
-      '自包含 MDX 内容模型与本地存放的静态资源，杜绝外部图床失效与引用断裂',
-      '严谨的 TypeScript 类型系统约束，确保多语言与分类数据编译期强检验',
-      '五语言平等原生国际化（zh-CN, en, fr, de, ja），基于稳定 translationId 绑定',
+      'Astro 驱动的高性能静态站点生成（无服务端运行时开销，无动态数据库依赖）',
+      '完全自包含的 MDX 内容集与本地高分辨率图片资产',
+      'TypeScript 编译期严格类型校验，保障跨语言内容体系一致性',
+      '原生 5 种语言（中、英、法、德、日）对照与稳定的 translationId 双向关联',
+      '无 JavaScript 依赖即可完成全文阅读与目录平滑导轨',
     ],
-    contactTitle: '联系方式与外部主页',
-    noContact: '暂未公开第三方社交链接。如有工程交流或建议，欢迎关注后续文章更新。',
+    contactTitle: '公开档案与联络渠道',
+    noContact: '暂未配置公开社交档案。',
   },
   'en': {
-    badge: 'Engineering Background & Colophon',
+    badge: 'Engineering Practice · Knowledge Architecture',
     whoTitle: 'About the Author',
-    whoText: 'A software engineer focused on resilient systems architecture, applied AI agent workflows, and modern web engineering. Daily work centers on large-scale architectures, frontend craft, and intelligent agent systems.',
-    focusTitle: 'Core Focus Areas',
+    whoText: 'A software engineer focused on system architecture, applied AI agents, and high-precision modern web systems.',
+    focusTitle: 'Core Disciplines',
     focusItems: [
-      { title: 'Software Engineering & Architecture', desc: 'Maintainable system designs, modular decoupling, and long-term code evolution.' },
-      { title: 'AI, LLMs & Agent Workflows', desc: 'Autonomous agent loops, tool calling, prompt engineering, and production deployments.' },
-      { title: 'Frontend & Web Craft', desc: 'Modern web frameworks, static builds, browser runtime mechanics, and performance.' },
-      { title: 'Design Systems & UX', desc: 'Single source of truth UI, component tokens, typographic rhythm, and accessibility.' },
-      { title: 'Technical Notes & Retrospectives', desc: 'Troubleshooting logs, tooling benchmarks, and engineering postmortems.' },
+      { title: 'Software Engineering & Architecture', desc: 'Maintainability, modular evolution, interface contracts, and long-term stability.' },
+      { title: 'AI, LLM & Agent Workflows', desc: 'Production deployment patterns, autonomous agents, tool orchestration, and eval frameworks.' },
+      { title: 'Frontend & Runtime Performance', desc: 'Browser internals, static-by-default compilation, and ergonomic interface engineering.' },
+      { title: 'Design Systems & UX', desc: 'Marrying editorial typographic rhythm with strict digital engineering specifications.' },
+      { title: 'Postmortems & Technical Notes', desc: 'Real troubleshooting logs, architectural trade-offs, and empirical lessons learned.' },
     ],
-    whyTitle: 'Why Maintain This Blog',
-    whyText: 'In an era overwhelmed by ephemeral social feeds, deep technical knowledge requires durable documentation. This technical sanctuary preserves architecture decisions, AI experiments, and engineering lessons as a resilient personal knowledge system designed to endure for the next 5–10 years.',
-    stackTitle: 'Site Architecture & Engineering Choices',
-    stackText: 'Engineered for resilience, zero maintenance, and decades of longevity with a static-by-default philosophy:',
+    whyTitle: 'The Ten-Year Horizon',
+    whyText: 'In an era of fleeting social feeds and ephemeral platforms, this site serves as a durable, self-hosted knowledge archive designed to remain legible and relevant over the next 5 to 10 years.',
+    stackTitle: 'System Architecture Specification',
+    stackText: 'Engineered for maximal longevity following the static-by-default doctrine:',
     stackItems: [
-      'Astro Static Site Generation (pure static pre-rendering, zero runtime server, zero dynamic DB)',
-      'Self-contained MDX content collections with local assets to prevent broken links',
-      'Strict TypeScript type safety ensuring compile-time taxonomy and translation checks',
-      'First-class 5-language localization (zh-CN, en, fr, de, ja) synchronized via stable translation IDs',
+      'Astro static site generation (zero runtime servers, zero database dependencies)',
+      'Self-contained MDX content collections with local high-fidelity assets',
+      'Strict compile-time TypeScript type checking across all multilingual taxonomies',
+      'Native five-language parity (zh-CN, en, fr, de, ja) bound via translationId',
+      'Fully readable and navigable with zero JavaScript hydration overhead',
     ],
-    contactTitle: 'Profiles & Contact',
-    noContact: 'No external social profiles linked at present. Stay tuned for upcoming technical articles.',
+    contactTitle: 'Profiles & Dispatch Channels',
+    noContact: 'No public profiles currently registered.',
   },
   'fr': {
-    badge: 'Profil & Architecture Technique',
-    whoTitle: 'À Propos de l’Auteur',
-    whoText: 'Ingénieur logiciel axé sur l’architecture de systèmes résilients, les flux d’agents IA et l’ingénierie Web moderne.',
-    focusTitle: 'Domaines d’Intervention',
+    badge: 'Ingénierie & Architecture',
+    whoTitle: "À propos de l'auteur",
+    whoText: "Ingénieur logiciel spécialisé dans l'architecture de systèmes, les agents IA appliqués et l'ingénierie web moderne.",
+    focusTitle: 'Domaines de recherche',
     focusItems: [
-      { title: 'Génie Logiciel & Architecture', desc: 'Conception de systèmes durables et architectures modulaires.' },
-      { title: 'IA, LLM & Systèmes d’Agents', desc: 'Workflows d’agents autonomes, appel d’outils et mise en production.' },
-      { title: 'Frontend & Web Moderne', desc: 'Frameworks Web modernes, mécanismes de rendu et performance.' },
-      { title: 'Design Systems & UX', desc: 'Source unique de vérité pour l’interface, typographie et accessibilité.' },
-      { title: 'Notes & Retours d’Expérience', desc: 'Journaux d’investigation, bilans d’ingénierie et benchmarks.' },
+      { title: 'Génie logiciel & Architecture', desc: 'Conception durable, modularisation et robustesse à long terme.' },
+      { title: 'IA, LLM & Agents autonomes', desc: 'Pipelines de production, agents autonomes et orchestration d’outils.' },
+      { title: 'Frontend & Performance Web', desc: 'Moteurs de navigateurs, compilation statique et ergonomie.' },
+      { title: 'Design Systems & UX', desc: 'Harmonie typographique éditoriale et rigueur d’ingénierie numérique.' },
+      { title: 'Retours d’expérience & Postmortems', desc: 'Dépannage réel, compromis d’architecture et analyses d’incidents.' },
     ],
-    whyTitle: 'Pourquoi ce Blog',
-    whyText: 'Ce blog technique a été conçu pour structurer et archiver les connaissances techniques sur 5 à 10 ans, à l’abri du bruit des plateformes éphémères.',
-    stackTitle: 'Architecture du Site',
-    stackText: 'Construit selon le principe du statique par défaut (Static-by-Default) pour une longévité maximale :',
+    whyTitle: 'Pourquoi ce système de connaissances',
+    whyText: 'Un espace dédié à la capitalisation de savoirs techniques structurés, pensé pour rester lisible et pertinent sur un horizon de 5 à 10 ans.',
+    stackTitle: 'Architecture du site',
+    stackText: 'Conçu selon le principe du statique par défaut (Static by Default) pour une pérennité maximale :',
     stackItems: [
-      'Génération de sites statiques avec Astro (zéro serveur dynamique, zéro base de données)',
-      'Collections de contenu MDX auto-contenues et médias locaux',
-      'Contrôle strict des types en TypeScript pour garantir la cohérence multilingue',
-      'Support natif de 5 langues (zh-CN, en, fr, de, ja) synchronisées par translationId',
+      'Génération statique Astro (zéro serveur dynamique, zéro dépendance SQL)',
+      'Collections MDX auto-contenues avec ressources locales',
+      'Typage TypeScript strict garantissant l’intégrité multilingue',
+      'Support de 5 langues (zh-CN, en, fr, de, ja) synchronisées via translationId',
     ],
     contactTitle: 'Profils & Contact',
     noContact: 'Aucun profil public pour le moment.',
   },
   'de': {
-    badge: 'Profil & Seitenarchitektur',
+    badge: 'Profil & Systemarchitektur',
     whoTitle: 'Über den Autor',
     whoText: 'Software-Ingenieur mit Fokus auf robuste Systemarchitektur, KI-Agentensysteme und modernes Web-Engineering.',
     focusTitle: 'Schwerpunktbereiche',
     focusItems: [
-      { title: 'Software-Engineering & Architektur', desc: 'Nachhaltiges Systemdesign, Modularisierung und verteilte Systeme.' },
-      { title: 'KI, LLM & Agenten-Workflows', desc: 'Autonome Agentensysteme, Tool-Calling und Praxiserfahrungen.' },
-      { title: 'Frontend & Web-Performance', desc: 'Moderne Web-Frameworks, Browser-Interna und Barrierefreiheit.' },
-      { title: 'Design-Systeme & UX', desc: 'Zentrale UI-Wahrheitsquelle, Interaktionsmodelle und Typografie.' },
-      { title: 'Notizen & Retrospektiven', desc: 'Fehlerbehebungsprotokolle, Tool-Evaluationen und Postmortems.' },
+      { title: 'Software-Engineering & Architektur', desc: 'Nachhaltiges Systemdesign, Modularisierung und Ausfallsicherheit.' },
+      { title: 'KI, LLM & Agenten-Workflows', desc: 'Autonome Agentensysteme, Tool-Calling und Praxiserfahrungen in der Produktion.' },
+      { title: 'Frontend & Web-Performance', desc: 'Browser-Interna, statische Kompilierung und performante UIs.' },
+      { title: 'Design-Systeme & UX', desc: 'Typografischer Rhythmus und digitale Ingenieurspräzision.' },
+      { title: 'Notizen & Retrospektiven', desc: 'Detaillierte Fehlerdiagnosen, Kompromissabwägungen und Postmortems.' },
     ],
     whyTitle: 'Warum dieser Blog',
     whyText: 'Ein technischer Rückzugsort für langfristige Wissensakkumulation und strukturierte Dokumentation für die nächsten 5–10 Jahre.',
-    stackTitle: 'Technologie-Stack',
+    stackTitle: 'Technologie-Stack & Spezifikation',
     stackText: 'Entwickelt für maximale Haltbarkeit nach dem Static-by-Default-Prinzip:',
     stackItems: [
       'Astro Static Site Generation (keine dynamische Datenbank, kein Server-Overhead)',
@@ -141,17 +159,17 @@ const aboutCopy = {
     focusItems: [
       { title: 'ソフトウェア工学とアーキテクチャ', desc: '持続可能なシステム設計、疎結合、コードの進化と実践的設計。' },
       { title: 'AI・LLM・自律型エージェント', desc: 'エージェントワークフロー、ツール呼び出し、実運用の知見。' },
-      { title: 'フロントエンドとWeb技術', desc: 'モダンフレームワーク、ブラウザ内部動作、性能最適化とアクセシビリティ。' },
+      { title: 'フロントエンドとWeb技術', desc: 'モダンフレームワーク、ブラウザ内部動作、性能最適化。' },
       { title: 'デザインシステムとUX', desc: 'UIの単一情報源、インタラクションモデル、組版美学の融合。' },
       { title: '技術ノートと振り返り', desc: 'トラブルシューティング記録、ツール選定、プロジェクトの事後検証。' },
     ],
-    whyTitle: 'このブログを続ける理由',
+    whyTitle: 'この知識システムを構築する理由',
     whyText: '移り変わりの激しいIT業界において、断片的な情報発信ではなく、5〜10年先も参照できる体系的な知識と検証結果を蓄積するための技術拠点です。',
     stackTitle: '採用技術と設計思想',
     stackText: '超長期的な保守性とパフォーマンスを追求した「完全静的（Static by Default）」構成：',
     stackItems: [
       'Astroによる静的サイト生成（動的DBなし、ランタイムサーバー不要）',
-      '自己完结型のMDXコンテンツコレクションとローカル画像管理',
+      '自己完結型のMDXコンテンツコレクションとローカル画像管理',
       'TypeScriptによる厳格な型安全性と多言語データの整合性担保',
       '安定したtranslationIdによる5言語ネイティブ対応（zh-CN, en, fr, de, ja）',
     ],
@@ -161,12 +179,6 @@ const aboutCopy = {
 };
 
 const copy = aboutCopy[locale] || aboutCopy['zh-CN'];
-const hasSocial = Boolean(
-  siteConfig.author.social.github ||
-  siteConfig.author.social.x ||
-  siteConfig.author.social.linkedin ||
-  siteConfig.author.social.email
-);
 ---
 
 <BaseLayout
@@ -177,72 +189,78 @@ const hasSocial = Boolean(
   alternateHreflangs={alternateHreflangs}
   translationLinks={translationLinks}
 >
-  <div class="mx-auto max-w-4xl px-4 sm:px-8 lg:px-12 py-8 sm:py-12 space-y-16">
-    <!-- Header -->
-    <header class="border-b border-[#e5e5e0] pb-8 space-y-4">
-      <div class="inline-flex items-center gap-2 text-xs font-mono font-medium tracking-wider uppercase text-[#737373]">
-        <Terminal className="h-3.5 w-3.5 text-[#16a34a]" />
+  <div class="mx-auto max-w-5xl px-4 sm:px-8 lg:px-12 py-10 sm:py-16 space-y-20">
+    <!-- Header Masthead -->
+    <header class="border-b border-[#1b1a18] pb-10 space-y-4">
+      <div class="flex items-center gap-3 text-xs font-mono uppercase tracking-widest text-[#88847b]">
+        <span>SPECIFICATION</span>
+        <span>·</span>
         <span>{copy.badge}</span>
       </div>
-      <h1 class="font-serif text-4xl sm:text-6xl font-bold tracking-tight text-[#1a1a1a]">
+      <h1 class="font-serif text-4xl sm:text-6xl font-bold tracking-tight text-[#1b1a18]">
         {t.aboutTitle}
       </h1>
-      <p class="font-serif text-xl text-[#525252] leading-relaxed">
+      <p class="font-serif text-xl text-[#57544e] max-w-2xl leading-relaxed">
         {siteConfig.siteDescription[locale]}
       </p>
     </header>
 
-    <!-- 1. Who I am / Author Profile -->
-    <section class="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
+    <!-- 01. Author Profile -->
+    <section class="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-start border-b border-[#e6e2d8] pb-16">
       <div class="md:col-span-4 space-y-4">
-        <div class="aspect-square overflow-hidden rounded-sm bg-[#e8e6e1] p-4 flex items-center justify-center border border-[#e5e5e0]">
+        <div class="aspect-square overflow-hidden border border-[#e6e2d8] bg-[#e8e4db] max-w-[220px]">
           <img
             src={siteConfig.author.avatar}
             alt={siteConfig.author.name}
             loading="lazy"
             decoding="async"
-            class="h-full w-full object-contain"
+            class="h-full w-full object-cover"
           />
         </div>
-        <div class="text-center md:text-left space-y-1">
-          <div class="font-serif text-lg font-bold text-[#1a1a1a]">
-            {siteConfig.author.name}
-          </div>
-          <div class="text-xs text-[#737373] font-mono">
-            Software & Systems Engineer
-          </div>
+        <div class="space-y-1 font-mono text-xs">
+          <div class="font-bold text-[#1b1a18] font-serif text-base">{siteConfig.author.name}</div>
+          <div class="text-[#88847b]">Software & Systems Engineer</div>
+          <div class="text-[10px] text-[#a5a095]">LOC: UTC+8 / ASIA</div>
         </div>
       </div>
 
-      <div class="md:col-span-8 space-y-4 font-serif text-base sm:text-lg leading-relaxed text-[#262626]">
-        <h2 class="font-serif text-2xl font-bold text-[#1a1a1a]">
+      <div class="md:col-span-8 space-y-6">
+        <div class="text-xs font-mono uppercase tracking-widest text-[#88847b]">
+          01 / IDENTITY
+        </div>
+        <h2 class="font-serif text-3xl font-bold text-[#1b1a18]">
           {copy.whoTitle}
         </h2>
-        <p>
-          {copy.whoText}
-        </p>
-        <p class="text-sm text-[#525252]">
-          {siteConfig.author.bio[locale]}
-        </p>
+        <div class="font-serif text-lg text-[#1b1a18] leading-relaxed space-y-4">
+          <p>{copy.whoText}</p>
+          <p class="text-sm text-[#57544e] leading-relaxed font-sans">{siteConfig.author.bio[locale]}</p>
+        </div>
       </div>
     </section>
 
-    <!-- 2. Core Focus Areas -->
-    <section class="border-t border-[#e5e5e0] pt-10 space-y-6">
-      <div class="flex items-center gap-2">
-        <Cpu className="h-5 w-5 text-[#525252]" />
-        <h2 class="font-serif text-2xl font-bold text-[#1a1a1a]">
-          {copy.focusTitle}
-        </h2>
+    <!-- 02. Core Focus Areas -->
+    <section class="space-y-8 border-b border-[#e6e2d8] pb-16">
+      <div class="flex items-baseline justify-between">
+        <div class="space-y-1">
+          <div class="text-xs font-mono uppercase tracking-widest text-[#88847b]">
+            02 / DISCIPLINES
+          </div>
+          <h2 class="font-serif text-3xl font-bold text-[#1b1a18]">
+            {copy.focusTitle}
+          </h2>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {copy.focusItems.map((item) => (
-          <div class="p-5 rounded-sm border border-[#e5e5e0] bg-[#faf9f6] space-y-2">
-            <h3 class="font-serif text-base font-bold text-[#1a1a1a]">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#e6e2d8] border border-[#e6e2d8]">
+        {copy.focusItems.map((item, idx) => (
+          <div class="bg-[#f9f8f5] p-6 sm:p-8 space-y-2">
+            <div class="text-xs font-mono text-[#88847b]">
+              SPEC 0{idx + 1}
+            </div>
+            <h3 class="font-serif text-xl font-bold text-[#1b1a18]">
               {item.title}
             </h3>
-            <p class="text-xs text-[#525252] leading-relaxed">
+            <p class="font-serif text-sm text-[#57544e] leading-relaxed">
               {item.desc}
             </p>
           </div>
@@ -250,80 +268,85 @@ const hasSocial = Boolean(
       </div>
     </section>
 
-    <!-- 3. Why Maintain This Blog -->
-    <section class="border-t border-[#e5e5e0] pt-10 space-y-4">
-      <div class="flex items-center gap-2">
-        <Layers className="h-5 w-5 text-[#525252]" />
-        <h2 class="font-serif text-2xl font-bold text-[#1a1a1a]">
+    <!-- 03. The Ten-Year Horizon -->
+    <section class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start border-b border-[#e6e2d8] pb-16">
+      <div class="md:col-span-4 text-xs font-mono uppercase tracking-widest text-[#88847b]">
+        03 / TEN-YEAR HORIZON
+      </div>
+      <div class="md:col-span-8 space-y-4">
+        <h2 class="font-serif text-3xl font-bold text-[#1b1a18]">
           {copy.whyTitle}
         </h2>
+        <p class="font-serif text-lg text-[#57544e] leading-relaxed">
+          {copy.whyText}
+        </p>
       </div>
-      <p class="font-serif text-base sm:text-lg leading-relaxed text-[#262626]">
-        {copy.whyText}
-      </p>
     </section>
 
-    <!-- 4. Site Architecture & Tech Stack -->
-    <section class="rounded-sm border border-[#e5e5e0] bg-[#f5f4ef] p-6 sm:p-8 space-y-4 font-sans text-sm text-[#404040]">
-      <div class="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-[#1a1a1a]">
-        <Code2 className="h-4 w-4" />
-        <span>{copy.stackTitle}</span>
+    <!-- 04. Technical Architecture Blueprint -->
+    <section class="space-y-6 border-b border-[#e6e2d8] pb-16">
+      <div class="text-xs font-mono uppercase tracking-widest text-[#88847b]">
+        04 / SYSTEM ARCHITECTURE
       </div>
-      <p class="text-xs text-[#525252] leading-relaxed">
+      <h2 class="font-serif text-3xl font-bold text-[#1b1a18]">
+        {copy.stackTitle}
+      </h2>
+      <p class="font-serif text-base text-[#57544e]">
         {copy.stackText}
       </p>
-      <ul class="list-disc pl-5 space-y-1.5 text-xs leading-relaxed text-[#525252]">
-        {copy.stackItems.map((item) => (
-          <li>{item}</li>
+
+      <div class="border border-[#e6e2d8] bg-[#f2efe9] p-6 sm:p-8 font-mono text-xs space-y-3">
+        {copy.stackItems.map((item, idx) => (
+          <div class="flex items-baseline gap-3 text-[#1b1a18]">
+            <span class="text-[#88847b] font-bold">[{idx + 1}]</span>
+            <span class="leading-relaxed">{item}</span>
+          </div>
         ))}
-      </ul>
+      </div>
     </section>
 
-    <!-- 5. Profiles & Contact Channels -->
-    <section class="border-t border-[#e5e5e0] pt-10 space-y-6">
-      <h2 class="font-serif text-2xl font-bold text-[#1a1a1a]">
+    <!-- 05. Dispatch & Public Profiles -->
+    <section class="space-y-6">
+      <div class="text-xs font-mono uppercase tracking-widest text-[#88847b]">
+        05 / CHANNELS
+      </div>
+      <h2 class="font-serif text-3xl font-bold text-[#1b1a18]">
         {copy.contactTitle}
       </h2>
-      {hasSocial ? (
-        <div class="flex flex-wrap gap-4 text-xs font-medium">
-          {siteConfig.author.social.email && (
-            <a
-              href={siteConfig.author.social.email}
-              class="inline-flex items-center gap-2 px-4 py-2 border border-[#e5e5e0] rounded-sm bg-[#faf9f6] text-[#1a1a1a] hover:border-[#1a1a1a] transition-all"
-            >
-              <Mail className="h-3.5 w-3.5" />
-              <span>Email</span>
-            </a>
-          )}
-          {siteConfig.author.social.github && (
-            <a
-              href={siteConfig.author.social.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 px-4 py-2 border border-[#e5e5e0] rounded-sm bg-[#faf9f6] text-[#1a1a1a] hover:border-[#1a1a1a] transition-all"
-            >
-              <svg class="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-              </svg>
-              <span>GitHub</span>
-            </a>
-          )}
-          {siteConfig.author.social.x && (
-            <a
-              href={siteConfig.author.social.x}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 px-4 py-2 border border-[#e5e5e0] rounded-sm bg-[#faf9f6] text-[#1a1a1a] hover:border-[#1a1a1a] transition-all"
-            >
-              <span>X (Twitter)</span>
-            </a>
-          )}
-        </div>
-      ) : (
-        <p class="text-xs text-[#737373] italic">
-          {copy.noContact}
-        </p>
-      )}
+
+      <div class="flex flex-wrap gap-4 pt-2">
+        {siteConfig.author.social.email && (
+          <a
+            href={siteConfig.author.social.email}
+            class="group inline-flex items-center gap-2 px-5 py-3 border border-[#1b1a18] bg-[#1b1a18] text-[#f9f8f5] hover:bg-transparent hover:text-[#1b1a18] text-xs font-mono uppercase tracking-wider transition-colors"
+          >
+            <span>Email Inquiries</span>
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </a>
+        )}
+        {siteConfig.author.social.github && (
+          <a
+            href={siteConfig.author.social.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group inline-flex items-center gap-2 px-5 py-3 border border-[#e6e2d8] bg-[#ffffff] hover:border-[#1b1a18] text-[#1b1a18] text-xs font-mono uppercase tracking-wider transition-colors"
+          >
+            <span>GitHub Architecture</span>
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </a>
+        )}
+        {siteConfig.author.social.x && (
+          <a
+            href={siteConfig.author.social.x}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="group inline-flex items-center gap-2 px-5 py-3 border border-[#e6e2d8] bg-[#ffffff] hover:border-[#1b1a18] text-[#1b1a18] text-xs font-mono uppercase tracking-wider transition-colors"
+          >
+            <span>X (Twitter)</span>
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </a>
+        )}
+      </div>
     </section>
   </div>
 </BaseLayout>

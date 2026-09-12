@@ -1,16 +1,197 @@
 @import "tailwindcss";
 
 @theme {
-  --font-serif: "Newsreader", "Source Serif 4", Georgia, serif;
-  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-serif: "Newsreader", "Source Serif 4", "Songti SC", "Noto Serif CJK SC", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Consolas, Menlo, monospace;
+
+  --color-paper: #f9f8f5;
+  --color-paper-muted: #f2efe9;
+  --color-paper-elevated: #ffffff;
+  --color-charcoal: #1b1a18;
+  --color-charcoal-muted: #57544e;
+  --color-charcoal-faint: #88847b;
+  --color-line: #e6e2d8;
+  --color-line-dark: #d3cebf;
+  --color-tech-accent: #1e3a5f;
+}
+
+:root {
+  --editorial-bg: #f9f8f5;
+  --editorial-charcoal: #1b1a18;
+  --editorial-muted: #57544e;
+  --editorial-faint: #88847b;
+  --editorial-line: #e6e2d8;
+  --editorial-accent: #1e3a5f;
 }
 
 html {
   scroll-behavior: smooth;
+  background-color: var(--editorial-bg);
+  color: var(--editorial-charcoal);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--editorial-bg);
+  color: var(--editorial-charcoal);
 }
 
 ::selection {
-  background-color: #1a1a1a;
-  color: #faf9f6;
+  background-color: #1b1a18;
+  color: #f9f8f5;
+}
+
+/* Hairline rule utility */
+.hairline-b {
+  border-bottom: 1px solid var(--editorial-line);
+}
+
+.hairline-t {
+  border-top: 1px solid var(--editorial-line);
+}
+
+.hairline-x {
+  border-left: 1px solid var(--editorial-line);
+  border-right: 1px solid var(--editorial-line);
+}
+
+/* Editorial longform prose */
+.editorial-prose {
+  color: #21201d;
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  line-height: 1.82;
+  letter-spacing: -0.003em;
+}
+
+@media (min-width: 640px) {
+  .editorial-prose {
+    font-size: 1.1875rem;
+    line-height: 1.85;
+  }
+}
+
+.editorial-prose p {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.editorial-prose h2 {
+  font-family: var(--font-serif);
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: #1b1a18;
+  margin-top: 2.75em;
+  margin-bottom: 0.8em;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid var(--editorial-line);
+}
+
+.editorial-prose h3 {
+  font-family: var(--font-serif);
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #1b1a18;
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+}
+
+.editorial-prose h4 {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #57544e;
+  margin-top: 1.75em;
+  margin-bottom: 0.5em;
+}
+
+.editorial-prose blockquote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.15em;
+  line-height: 1.7;
+  color: #3b3935;
+  border-left: 2px solid #1b1a18;
+  padding-left: 1.5em;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.editorial-prose code:not(pre code) {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  font-weight: 500;
+  color: #1e3a5f;
+  background-color: #f1ede4;
+  padding: 0.15em 0.35em;
+  border-radius: 2px;
+}
+
+.editorial-prose pre {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.65;
+  background-color: #161514;
+  color: #ece8df;
+  padding: 1.25rem 1.5rem;
+  border-radius: 2px;
+  overflow-x: auto;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border: 1px solid #2d2b27;
+}
+
+.editorial-prose pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+.editorial-prose ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+.editorial-prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+
+.editorial-prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.editorial-prose a {
+  color: #1e3a5f;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: #a8b8cc;
+  transition: all 0.2s ease;
+}
+
+.editorial-prose a:hover {
+  text-decoration-color: #1e3a5f;
+  color: #0f1d30;
+}
+
+.editorial-prose hr {
+  border: none;
+  border-top: 1px solid var(--editorial-line);
+  margin-top: 3em;
+  margin-bottom: 3em;
 }

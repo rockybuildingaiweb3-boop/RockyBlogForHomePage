@@ -1,4 +1,5 @@
 import React from 'react';
+import { ArrowUpRight } from 'lucide-react';
 
 export interface RelatedArticleItem {
   slug: string;
@@ -37,19 +38,28 @@ export const RelatedArticles: React.FC<RelatedArticlesProps> = ({ articles, head
   });
 
   return (
-    <section className="my-16 border-t border-[#e5e5e0] pt-12">
-      <h3 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#1a1a1a] mb-8">
-        {heading}
-      </h3>
+    <section className="my-16 border-t border-[#1b1a18] pt-10">
+      <div className="flex items-baseline justify-between mb-8">
+        <div className="flex items-baseline gap-2.5">
+          <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#1b1a18]">
+            INDEX
+          </span>
+          <span className="text-[#cfc9be]">/</span>
+          <h3 className="font-serif text-xl font-bold tracking-tight text-[#1b1a18]">
+            {heading}
+          </h3>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {normalizedArticles.map((item) => (
+        {normalizedArticles.map((item, idx) => (
           <a
             key={item.slug}
             href={`/${item.lang}/blog/${item.slug}`}
-            className="group flex flex-col justify-between"
+            className="group flex flex-col justify-between space-y-3"
           >
             <div className="space-y-3">
-              <div className="aspect-[16/10] overflow-hidden rounded-sm bg-[#e8e6e1]">
+              <div className="aspect-[16/10] overflow-hidden border border-[#e6e2d8] bg-[#e8e4db]">
                 <img
                   src={item.cover}
                   alt={item.title}
@@ -57,18 +67,20 @@ export const RelatedArticles: React.FC<RelatedArticlesProps> = ({ articles, head
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
-              <div className="text-[11px] font-semibold tracking-wider uppercase text-[#737373]">
-                {item.category}
+              <div className="flex items-baseline justify-between text-[10px] font-mono uppercase tracking-wider text-[#88847b]">
+                <span>0{idx + 1} · {item.category}</span>
+                <span>{item.pubDate}</span>
               </div>
-              <h4 className="font-serif text-base font-bold text-[#1a1a1a] group-hover:underline line-clamp-2 leading-snug">
+              <h4 className="font-serif text-base font-bold text-[#1b1a18] group-hover:text-[#1e3a5f] group-hover:underline underline-offset-4 line-clamp-2 leading-snug transition-colors">
                 {item.title}
               </h4>
-              <p className="text-xs text-[#525252] line-clamp-2 font-serif leading-relaxed">
+              <p className="text-xs text-[#57544e] line-clamp-2 font-serif leading-relaxed">
                 {item.description}
               </p>
             </div>
-            <div className="mt-4 text-[11px] text-[#a3a3a3] font-mono">
-              {item.pubDate} {item.readingTimeMinutes ? `• ${item.readingTimeMinutes} min` : ''}
+            <div className="inline-flex items-center gap-1 text-[11px] font-mono text-[#88847b] group-hover:text-[#1b1a18] pt-1">
+              <span>Read</span>
+              <ArrowUpRight className="h-3 w-3" />
             </div>
           </a>
         ))}

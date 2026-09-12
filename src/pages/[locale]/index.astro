@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { ArrowRight, Terminal } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { siteConfig } from '../../config/site.config';
 import { getTagDisplayName } from '../../config/tags';
 import {
@@ -24,7 +24,7 @@ const t = uiTranslations[locale];
 
 const allPosts = await getCollection('blog');
 const featuredArticles = getFeaturedArticles(allPosts, locale, 3);
-const latestArticles = getLatestArticles(allPosts, locale, 6);
+const latestArticles = getLatestArticles(allPosts, locale, 8);
 
 const alternateHreflangs: Record<SupportedLocale, string> = {
   'zh-CN': `${siteConfig.siteUrl}/zh-CN`,
@@ -46,6 +46,70 @@ function getCoverSrc(cover: any): string {
   if (!cover) return '';
   return typeof cover === 'string' ? cover : cover.src;
 }
+
+const heroStatements: Record<SupportedLocale, { quote: string; sub: string }> = {
+  'zh-CN': {
+    quote: '记录我构建的软件、研究的系统架构，以及在工程实践中反复验证的技术思考。',
+    sub: '面向 IT 从业者的长期技术积累系统 · 纯静态构建 · 沉淀真实工程经验与 AI 实践',
+  },
+  'en': {
+    quote: 'I write about the software I build, the systems I study, and the ideas I keep returning to.',
+    sub: 'A durable technical knowledge system · Static by default · Software engineering & AI systems',
+  },
+  'fr': {
+    quote: "Notes sur les logiciels que je conçois, les systèmes que j'étudie et les principes d'ingénierie durables.",
+    sub: "Système de connaissances techniques pérenne · Architecture statique · Génie logiciel & IA",
+  },
+  'de': {
+    quote: 'Aufzeichnungen über gebaute Software, untersuchte Systeme und beständige Ideen des Software-Engineerings.',
+    sub: 'Ein dauerhaftes technisches Wissenssystem · Statisch per Default · Softwaretechnik & KI',
+  },
+  'ja': {
+    quote: '構築するソフトウェア、探求するシステム構造、そして繰り返し立ち返る技術的原則についての記録。',
+    sub: 'IT従事者のための長期的な技術蓄積システム · 静的ビルド · 実践的エンジニアリングとAI',
+  },
+};
+
+const currentHero = heroStatements[locale] || heroStatements['en'];
+
+// Category sub-topics for the large Topic Index
+const categorySubtopics: Record<string, Record<SupportedLocale, string>> = {
+  engineering: {
+    'zh-CN': '系统架构 · 分布式计算 · 代码演进 · 稳定性保障 · 软件工程实践',
+    'en': 'Software architecture · Distributed systems · Code evolution · Reliability',
+    'fr': 'Architecture logicielle · Systèmes distribués · Évolution du code · Fiabilité',
+    'de': 'Softwarearchitektur · Verteilte Systeme · Code-Evolution · Zuverlässigkeit',
+    'ja': 'ソフトウェアアーキテクチャ · 分散システム · コード進化 · 信頼性',
+  },
+  ai: {
+    'zh-CN': '大语言模型 · 自律智能体 (Agents) · 提示工程 · 生产环境落地',
+    'en': 'LLM pipelines · Autonomous agents · Prompt engineering · Production deployment',
+    'fr': 'Pipelines LLM · Agents autonomes · Ingénierie des invites · Mise en production',
+    'de': 'LLM-Pipelines · Autonome Agenten · Prompt-Engineering · Produktiver Einsatz',
+    'ja': 'LLMパイプライン · 自律エージェント · プロンプト工学 · 本番展開',
+  },
+  frontend: {
+    'zh-CN': '现代 Web 框架 · React / Astro · 渲染机制 · 浏览器性能优化',
+    'en': 'Modern web frameworks · React / Astro · Runtime rendering · Performance',
+    'fr': 'Frameworks Web modernes · React / Astro · Rendu navigateur · Performance',
+    'de': 'Moderne Webframeworks · React / Astro · Browser-Rendering · Web-Performance',
+    'ja': 'モダンWebフレームワーク · React / Astro · レンダリング機構 · パフォーマンス',
+  },
+  'design-ux': {
+    'zh-CN': '设计系统 · 排版韵律 · 交互层次 · 无障碍访问 · 数字出版品质',
+    'en': 'Design systems · Typographic rhythm · Interaction hierarchy · Accessibility',
+    'fr': 'Design systems · Rythme typographique · Hiérarchie d’interaction · Accessibilité',
+    'de': 'Design-Systeme · Typografischer Rhythmus · Interaktionshierarchie · Barrierefreiheit',
+    'ja': 'デザインシステム · タイポグラフィのリズム · 相互作用の階層 · アクセシビリティ',
+  },
+  notes: {
+    'zh-CN': '技术复盘 · 疑难排错 · 工具链横评 · 实验记录 · 踩坑经验',
+    'en': 'Technical postmortems · Troubleshooting · Tooling benchmarks · Lab logs',
+    'fr': 'Retours d’expérience · Dépannage · Benchmarks d’outils · Notes de laboratoire',
+    'de': 'Postmortems · Fehlerdiagnose · Tooling-Vergleiche · Experimentelle Notizen',
+    'ja': '技術ポストモーテム · トラブルシューティング · ツール比較 · 実験ログ',
+  },
+};
 ---
 
 <BaseLayout
@@ -54,61 +118,188 @@ function getCoverSrc(cover: any): string {
   alternateHreflangs={alternateHreflangs}
   translationLinks={translationLinks}
 >
-  <div class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 space-y-24 py-8 sm:py-12">
-    <!-- 1. Technical Hero Masthead -->
-    <section class="border-b border-[#e5e5e0] pb-16">
-      <div class="max-w-4xl space-y-6">
-        <div class="inline-flex items-center gap-2 text-xs font-mono font-medium tracking-wider uppercase text-[#737373]">
-          <span class="inline-block h-2 w-2 rounded-full bg-[#16a34a]"></span>
-          <span>Personal Technical Blog & Long-Term Knowledge System</span>
-        </div>
-        <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-[#1a1a1a] leading-[1.08]">
-          {siteConfig.siteName[locale]}
-        </h1>
-        <p class="font-serif text-xl sm:text-2xl text-[#525252] leading-relaxed max-w-3xl">
-          {siteConfig.siteDescription[locale]}
-        </p>
+  <div class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 py-10 sm:py-16 space-y-24 sm:space-y-32">
+    <!-- 1. Editorial Masthead / Author Identity Hero -->
+    <section class="border-b border-[#e6e2d8] pb-16 sm:pb-20">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        <!-- Left: Masthead Identity & Declaration (7 cols) -->
+        <div class="lg:col-span-7 space-y-8">
+          <div class="space-y-3">
+            <div class="flex items-center gap-3 text-[11px] font-mono tracking-widest uppercase text-[#88847b]">
+              <span class="inline-block h-1.5 w-1.5 rounded-full bg-[#1b1a18]"></span>
+              <span>VOL. 2026 · TECHNICAL ARCHIVE</span>
+            </div>
+            <h1 class="font-serif text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-[#1b1a18] leading-[0.95]">
+              ROCKY
+            </h1>
+          </div>
 
-        <!-- Focus areas pills -->
-        <div class="pt-2 flex flex-wrap items-center gap-2">
-          <span class="text-xs font-mono text-[#737373] mr-1">Focus Areas:</span>
-          {siteConfig.categories.map((cat) => (
-            <a
-              href={`/${locale}/category/${cat.id}`}
-              class="inline-flex items-center text-xs font-mono bg-[#f0eee6] hover:bg-[#e4e1d7] text-[#404040] hover:text-[#1a1a1a] px-3 py-1 rounded-sm border border-[#e5e3dc] transition-colors"
+          <!-- Editorial Disciplines -->
+          <div class="border-y border-[#e6e2d8] py-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono uppercase tracking-wider text-[#57544e]">
+              <div>Software Eng.</div>
+              <div>AI & Agents</div>
+              <div>Frontend / Web</div>
+              <div>System Design</div>
+            </div>
+          </div>
+
+          <!-- Manifest statement -->
+          <div class="space-y-4">
+            <p class="font-serif text-2xl sm:text-3xl lg:text-4xl text-[#1b1a18] font-normal leading-[1.25] tracking-tight max-w-2xl">
+              “{currentHero.quote}”
+            </p>
+            <p class="text-xs sm:text-sm text-[#757168] font-sans leading-relaxed max-w-xl">
+              {currentHero.sub}
+            </p>
+          </div>
+
+          <!-- Metadata Spec Strip -->
+          <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-[11px] font-mono text-[#88847b] pt-2">
+            <span>FORMAT: STATIC MDX</span>
+            <span>·</span>
+            <span>DEPLOY: ZERO RUNTIME</span>
+            <span>·</span>
+            <span>EDITIONS: 5 LANGUAGES</span>
+          </div>
+        </div>
+
+        <!-- Right: Technical Blueprint Visual (5 cols) -->
+        <div class="lg:col-span-5">
+          <div class="border border-[#e6e2d8] bg-[#f2efe9] p-6 sm:p-8 space-y-6">
+            <div class="flex items-center justify-between border-b border-[#e6e2d8] pb-3 text-[10px] font-mono uppercase tracking-widest text-[#88847b]">
+              <span>FIG 01. ARCHITECTURE MATRIX</span>
+              <span>SPEC / CC BY 4.0</span>
+            </div>
+
+            <!-- Architectural Blueprint Graphic (Vector SVG) -->
+            <svg
+              viewBox="0 0 400 240"
+              class="w-full h-auto stroke-[#1b1a18] fill-none"
+              stroke-width="1"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-label="Technical architecture topological diagram"
             >
-              {cat.name[locale]}
-            </a>
-          ))}
+              <!-- Grid background -->
+              <defs>
+                <pattern id="editorialGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0dcce" stroke-width="0.5" />
+                </pattern>
+              </defs>
+              <rect width="400" height="240" fill="url(#editorialGrid)" stroke="none" />
+
+              <!-- Central core: Static Synthesis Kernel -->
+              <rect x="140" y="70" width="120" height="70" stroke="#1b1a18" stroke-width="1.5" fill="#f9f8f5" />
+              <text x="200" y="98" font-family="monospace" font-size="10" font-weight="bold" fill="#1b1a18" text-anchor="middle" stroke="none">ASTRO KERNEL</text>
+              <text x="200" y="118" font-family="monospace" font-size="8" fill="#57544e" text-anchor="middle" stroke="none">ZERO RUNTIME SSG</text>
+
+              <!-- Node: MDX Content Collections -->
+              <rect x="30" y="30" width="80" height="44" stroke="#1b1a18" fill="#f9f8f5" />
+              <text x="70" y="52" font-family="monospace" font-size="8" font-weight="bold" fill="#1b1a18" text-anchor="middle" stroke="none">MDX SOURCE</text>
+              <text x="70" y="64" font-family="monospace" font-size="7" fill="#88847b" text-anchor="middle" stroke="none">Local Assets</text>
+
+              <!-- Node: Strict Zod Schema -->
+              <rect x="30" y="140" width="80" height="44" stroke="#1b1a18" fill="#f9f8f5" />
+              <text x="70" y="162" font-family="monospace" font-size="8" font-weight="bold" fill="#1b1a18" text-anchor="middle" stroke="none">ZOD SCHEMA</text>
+              <text x="70" y="174" font-family="monospace" font-size="7" fill="#88847b" text-anchor="middle" stroke="none">Type Validation</text>
+
+              <!-- Node: 5-Lang Distribution -->
+              <rect x="290" y="85" width="80" height="44" stroke="#1b1a18" fill="#f9f8f5" />
+              <text x="330" y="107" font-family="monospace" font-size="8" font-weight="bold" fill="#1b1a18" text-anchor="middle" stroke="none">I18N EMISSION</text>
+              <text x="330" y="119" font-family="monospace" font-size="7" fill="#88847b" text-anchor="middle" stroke="none">ZH · EN · FR · DE · JA</text>
+
+              <!-- Connectors -->
+              <path d="M 110 52 L 140 90" stroke="#1b1a18" stroke-dasharray="2,2" />
+              <path d="M 110 162 L 140 120" stroke="#1b1a18" stroke-dasharray="2,2" />
+              <path d="M 260 105 L 290 105" stroke="#1b1a18" marker-end="url(#arrow)" />
+
+              <!-- Technical coordinates & marks -->
+              <circle cx="200" cy="70" r="2" fill="#1b1a18" />
+              <circle cx="200" cy="140" r="2" fill="#1b1a18" />
+              <line x1="20" y1="210" x2="380" y2="210" stroke="#cfc9be" stroke-width="0.75" />
+              <text x="20" y="226" font-family="monospace" font-size="7" fill="#88847b" stroke="none">LATENCY: 0ms (STATIC HTML)</text>
+              <text x="380" y="226" font-family="monospace" font-size="7" fill="#88847b" text-anchor="end" stroke="none">DEP: NONE</text>
+            </svg>
+
+            <div class="space-y-1 text-xs font-serif text-[#57544e] border-t border-[#e6e2d8] pt-3">
+              <div class="font-bold text-[#1b1a18]">Immutable Knowledge Invariant</div>
+              <div class="text-[11px] leading-relaxed">
+                Articles authored in local MDX; strictly verified at build time; compiled to standalone HTML. Designed for the 10-year horizon.
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 2. Featured Section (Editorial Magazine Layout) -->
-    {featuredArticles.length > 0 && (
-      <section class="space-y-10">
-        <div class="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-[#e5e5e0] pb-4 gap-2">
-          <div>
-            <h2 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#1a1a1a]">
+    <!-- 2. Editorial Lead Story (Featured Article) -->
+    {featuredArticles.length > 0 && featuredArticles[0] && (
+      <section class="space-y-12">
+        <div class="flex items-center justify-between border-b border-[#1b1a18] pb-3">
+          <div class="flex items-baseline gap-3">
+            <span class="text-[11px] font-mono font-bold uppercase tracking-widest text-[#1b1a18]">
+              SECTION 01
+            </span>
+            <span class="text-[#cfc9be]">/</span>
+            <h2 class="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#1b1a18]">
               {t.featuredTitle}
             </h2>
-            <p class="text-xs text-[#737373] mt-1 font-sans">{t.featuredSubtitle}</p>
           </div>
           <a
             href={`/${locale}/blog`}
-            class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-[#525252] hover:text-[#1a1a1a] transition-colors"
+            class="group inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-[#57544e] hover:text-[#1b1a18]"
           >
             <span>{t.navBlog}</span>
-            <ArrowRight className="h-3.5 w-3.5" />
+            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </a>
         </div>
 
-        <!-- Lead Featured Article -->
-        {featuredArticles[0] && (
-          <article class="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Primary Lead Story Article -->
+        <article class="group grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          <!-- Text column (7 cols) -->
+          <div class="lg:col-span-7 space-y-6 order-2 lg:order-1">
+            <div class="flex items-center gap-3 text-xs font-mono uppercase tracking-wider text-[#88847b]">
+              <span class="font-semibold text-[#1b1a18]">
+                {siteConfig.categories.find((c) => c.id === featuredArticles[0].data.category)?.name[locale] || featuredArticles[0].data.category}
+              </span>
+              <span>·</span>
+              <span>{featuredArticles[0].data.pubDate}</span>
+              <span>·</span>
+              <span>{t.readingTimeFormat(calculateReadingMetrics(featuredArticles[0].body || '', locale).minutes)}</span>
+            </div>
+
+            <h3 class="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1b1a18] leading-[1.12] tracking-tight group-hover:text-[#1e3a5f] transition-colors">
+              <a href={`/${locale}/blog/${featuredArticles[0].data.slug}`}>
+                {featuredArticles[0].data.title}
+              </a>
+            </h3>
+
+            <p class="font-serif text-lg text-[#57544e] leading-relaxed">
+              {featuredArticles[0].data.description}
+            </p>
+
+            <div class="pt-4 flex items-center justify-between border-t border-[#e6e2d8]">
+              <div class="flex flex-wrap gap-2 text-xs font-mono text-[#88847b]">
+                {featuredArticles[0].data.tags.slice(0, 3).map((tag: string) => (
+                  <span class="hover:text-[#1b1a18]">#{getTagDisplayName(tag, locale)}</span>
+                ))}
+              </div>
+
+              <a
+                href={`/${locale}/blog/${featuredArticles[0].data.slug}`}
+                class="inline-flex items-center gap-1 text-xs font-mono font-semibold uppercase tracking-wider text-[#1b1a18] group-hover:underline underline-offset-4"
+              >
+                <span>Read Full Essay</span>
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          </div>
+
+          <!-- Cover Image Column (5 cols) -->
+          <div class="lg:col-span-5 order-1 lg:order-2">
             <a
               href={`/${locale}/blog/${featuredArticles[0].data.slug}`}
-              class="lg:col-span-8 overflow-hidden rounded-sm bg-[#e8e6e1] aspect-[16/10] block"
+              class="block overflow-hidden border border-[#e6e2d8] bg-[#e8e4db] aspect-[16/11]"
             >
               <img
                 src={getCoverSrc(featuredArticles[0].data.cover)}
@@ -116,38 +307,24 @@ function getCoverSrc(cover: any): string {
                 loading="eager"
                 fetchpriority="high"
                 decoding="async"
-                class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
               />
             </a>
-            <div class="lg:col-span-4 space-y-4">
-              <span class="inline-block text-[11px] font-semibold tracking-widest uppercase text-[#737373]">
-                {featuredArticles[0].data.category}
-              </span>
-              <h3 class="font-serif text-2xl sm:text-3xl font-bold text-[#1a1a1a] leading-tight group-hover:underline">
-                <a href={`/${locale}/blog/${featuredArticles[0].data.slug}`}>
-                  {featuredArticles[0].data.title}
-                </a>
-              </h3>
-              <p class="font-serif text-sm leading-relaxed text-[#525252] line-clamp-3">
-                {featuredArticles[0].data.description}
-              </p>
-              <div class="pt-2 text-xs font-mono text-[#737373]">
-                {featuredArticles[0].data.pubDate} • {t.readingTimeFormat(calculateReadingMetrics(featuredArticles[0].body || '', locale).minutes)}
-              </div>
+            <div class="mt-2 text-[10px] font-mono text-[#88847b] text-right">
+              COVER PLATE 01 · {featuredArticles[0].data.slug}
             </div>
-          </article>
-        )}
+          </div>
+        </article>
 
-        <!-- Sub-featured articles grid -->
+        <!-- Secondary Featured Articles (Sub-Leads, 2 Columns) -->
         {featuredArticles.length > 1 && (
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
-            {featuredArticles.slice(1).map((item) => {
-              const readingMin = calculateReadingMetrics(item.body || '', locale).minutes;
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14 pt-8 border-t border-[#e6e2d8]">
+            {featuredArticles.slice(1).map((item, idx) => {
               return (
                 <article class="group space-y-4">
                   <a
                     href={`/${locale}/blog/${item.data.slug}`}
-                    class="aspect-[16/9] overflow-hidden rounded-sm bg-[#e8e6e1] block"
+                    class="aspect-[16/9] overflow-hidden border border-[#e6e2d8] bg-[#e8e4db] block"
                   >
                     <img
                       src={getCoverSrc(item.data.cover)}
@@ -157,20 +334,21 @@ function getCoverSrc(cover: any): string {
                       class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </a>
-                  <span class="text-[11px] font-semibold tracking-widest uppercase text-[#737373]">
-                    {item.data.category}
-                  </span>
-                  <h4 class="font-serif text-xl font-bold text-[#1a1a1a] leading-snug group-hover:underline">
+                  <div class="flex items-center gap-2.5 text-[11px] font-mono text-[#88847b]">
+                    <span class="uppercase font-semibold text-[#1b1a18]">
+                      0{idx + 2} / {siteConfig.categories.find((c) => c.id === item.data.category)?.name[locale] || item.data.category}
+                    </span>
+                    <span>·</span>
+                    <span>{item.data.pubDate}</span>
+                  </div>
+                  <h4 class="font-serif text-2xl font-bold text-[#1b1a18] leading-snug group-hover:text-[#1e3a5f] transition-colors">
                     <a href={`/${locale}/blog/${item.data.slug}`}>
                       {item.data.title}
                     </a>
                   </h4>
-                  <p class="font-serif text-sm text-[#525252] line-clamp-2">
+                  <p class="font-serif text-sm text-[#57544e] line-clamp-2 leading-relaxed">
                     {item.data.description}
                   </p>
-                  <div class="text-xs font-mono text-[#737373]">
-                    {item.data.pubDate} • {t.readingTimeFormat(readingMin)}
-                  </div>
                 </article>
               );
             })}
@@ -179,47 +357,75 @@ function getCoverSrc(cover: any): string {
       </section>
     )}
 
-    <!-- 3. Latest Dispatches Section -->
-    <section class="space-y-10">
-      <div class="border-b border-[#e5e5e0] pb-4">
-        <h2 class="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#1a1a1a]">
-          {t.latestArticlesTitle}
-        </h2>
-        <p class="text-xs text-[#737373] mt-1 font-sans">{t.latestArticlesSubtitle}</p>
+    <!-- 3. Latest Articles (Editorial List / Catalog) -->
+    <section class="space-y-8">
+      <div class="flex items-center justify-between border-b border-[#1b1a18] pb-3">
+        <div class="flex items-baseline gap-3">
+          <span class="text-[11px] font-mono font-bold uppercase tracking-widest text-[#1b1a18]">
+            SECTION 02
+          </span>
+          <span class="text-[#cfc9be]">/</span>
+          <h2 class="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#1b1a18]">
+            {t.latestArticlesTitle}
+          </h2>
+        </div>
+        <a
+          href={`/${locale}/archive`}
+          class="group inline-flex items-center gap-1 text-xs font-mono uppercase tracking-wider text-[#57544e] hover:text-[#1b1a18]"
+        >
+          <span>{t.navArchive}</span>
+          <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        </a>
       </div>
 
-      <div class="divide-y divide-[#ecebe6]">
+      <!-- Catalog Table List -->
+      <div class="divide-y divide-[#e6e2d8]">
         {latestArticles.map((article) => {
           const readingMin = calculateReadingMetrics(article.body || '', locale).minutes;
           return (
-            <article class="group py-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-start hover:bg-[#faf8f2] px-4 -mx-4 rounded-sm transition-colors">
-              <div class="md:col-span-3 text-xs font-mono text-[#737373] pt-1">
-                <div>{article.data.pubDate}</div>
-                <div class="text-[#a3a3a3] mt-1">{t.readingTimeFormat(readingMin)}</div>
+            <article class="group py-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-baseline hover:bg-[#f3f0e8]/50 px-2 -mx-2 transition-colors">
+              <!-- Meta Column: Date & Category (3 cols) -->
+              <div class="md:col-span-3 space-y-1 font-mono text-xs">
+                <div class="text-[#1b1a18] font-medium">{article.data.pubDate}</div>
+                <div class="text-[11px] uppercase tracking-wider text-[#88847b]">
+                  {siteConfig.categories.find((c) => c.id === article.data.category)?.name[locale] || article.data.category}
+                </div>
+                <div class="text-[10px] text-[#a5a095]">
+                  {t.readingTimeFormat(readingMin)}
+                </div>
               </div>
 
-              <div class="md:col-span-9 space-y-2">
-                <span class="text-[10px] font-semibold tracking-widest uppercase text-[#737373]">
-                  {article.data.category}
-                </span>
-                <h3 class="font-serif text-xl sm:text-2xl font-bold text-[#1a1a1a] group-hover:underline leading-snug">
+              <!-- Main Content: Title & Excerpt (7 cols) -->
+              <div class="md:col-span-7 space-y-2">
+                <h3 class="font-serif text-xl sm:text-2xl font-bold text-[#1b1a18] leading-snug group-hover:text-[#1e3a5f] transition-colors">
                   <a href={`/${locale}/blog/${article.data.slug}`}>
                     {article.data.title}
                   </a>
                 </h3>
-                <p class="font-serif text-sm text-[#525252] leading-relaxed">
+                <p class="font-serif text-sm text-[#57544e] leading-relaxed line-clamp-2">
                   {article.data.description}
                 </p>
-                <div class="flex flex-wrap gap-2 pt-2">
+                <div class="flex flex-wrap gap-x-3 gap-y-1 pt-1 text-[11px] font-mono text-[#88847b]">
                   {article.data.tags.map((tag: string) => (
                     <a
                       href={`/${locale}/tag/${tag}`}
-                      class="text-[11px] font-mono text-[#737373] bg-[#f0eee6] hover:bg-[#e2dfd7] px-2 py-0.5 rounded-sm transition-colors"
+                      class="hover:text-[#1b1a18]"
                     >
                       #{getTagDisplayName(tag, locale)}
                     </a>
                   ))}
                 </div>
+              </div>
+
+              <!-- Action Link (2 cols) -->
+              <div class="hidden md:flex md:col-span-2 justify-end">
+                <a
+                  href={`/${locale}/blog/${article.data.slug}`}
+                  class="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-wider text-[#88847b] group-hover:text-[#1b1a18] group-hover:translate-x-1 transition-all"
+                >
+                  <span>Read</span>
+                  <ArrowUpRight className="h-3 w-3" />
+                </a>
               </div>
             </article>
           );
@@ -227,58 +433,109 @@ function getCoverSrc(cover: any): string {
       </div>
     </section>
 
-    <!-- 4. Subject Indexes / Categories -->
-    <section class="rounded-sm border border-[#e5e5e0] bg-[#f5f4ef] p-8 sm:p-12 space-y-8">
-      <div>
-        <h2 class="font-serif text-2xl font-bold text-[#1a1a1a]">
-          {t.categoriesTitle}
-        </h2>
-        <p class="text-xs text-[#737373] mt-1 font-sans">
-          Software engineering, artificial intelligence, frontend craft, design systems, and technical retrospectives
-        </p>
+    <!-- 4. Large Topic Index (Category Section) -->
+    <section class="space-y-8 border-t border-[#1b1a18] pt-12">
+      <div class="flex items-baseline justify-between border-b border-[#e6e2d8] pb-3">
+        <div class="flex items-baseline gap-3">
+          <span class="text-[11px] font-mono font-bold uppercase tracking-widest text-[#1b1a18]">
+            SECTION 03
+          </span>
+          <span class="text-[#cfc9be]">/</span>
+          <h2 class="font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#1b1a18]">
+            {t.categoriesTitle}
+          </h2>
+        </div>
+        <span class="text-xs font-mono text-[#88847b]">
+          5 CORE DISCIPLINES
+        </span>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-        {siteConfig.categories.map((cat) => {
+      <!-- Editorial Index Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#e6e2d8] border border-[#e6e2d8]">
+        {siteConfig.categories.map((cat, idx) => {
           const count = getArticlesByCategory(allPosts, locale, cat.id).length;
+          const subtopics = categorySubtopics[cat.id]?.[locale] || '';
+
           return (
             <a
               href={`/${locale}/category/${cat.id}`}
-              class="group p-5 bg-[#faf9f6] border border-[#e5e5e0] rounded-sm text-left hover:border-[#1a1a1a] transition-all space-y-3 block"
+              class="group bg-[#f9f8f5] hover:bg-[#ffffff] p-8 space-y-4 transition-colors block text-left"
             >
-              <div class="flex items-center justify-between">
-                <span class="font-serif text-base font-bold text-[#1a1a1a] group-hover:underline">
-                  {cat.name[locale]}
-                </span>
-                <span class="text-xs font-mono text-[#737373]">{count}</span>
+              <div class="flex items-baseline justify-between text-xs font-mono text-[#88847b]">
+                <span class="font-bold text-[#1b1a18]">0{idx + 1}</span>
+                <span>{count} {count === 1 ? 'ARTICLE' : 'ARTICLES'}</span>
               </div>
-              <p class="text-xs text-[#525252] line-clamp-2 leading-relaxed">
+
+              <h3 class="font-serif text-2xl font-bold tracking-tight text-[#1b1a18] group-hover:text-[#1e3a5f] transition-colors">
+                {cat.name[locale]}
+              </h3>
+
+              <p class="font-serif text-xs text-[#57544e] leading-relaxed">
                 {cat.description?.[locale]}
               </p>
+
+              {subtopics && (
+                <div class="pt-2 text-[11px] font-mono text-[#88847b] border-t border-[#f0ece3] leading-relaxed">
+                  {subtopics}
+                </div>
+              )}
             </a>
           );
         })}
       </div>
     </section>
 
-    <!-- 5. Engineering Author Statement -->
-    <section class="text-center py-12 border-t border-[#e5e5e0] space-y-4">
-      <div class="flex items-center justify-center">
-        <Terminal className="h-6 w-6 text-[#737373]" />
-      </div>
-      <h3 class="font-serif text-xl font-bold text-[#1a1a1a]">
-        {siteConfig.author.name}
-      </h3>
-      <p class="text-sm max-w-xl mx-auto text-[#525252] leading-relaxed">
-        {siteConfig.author.bio[locale]}
-      </p>
-      <div class="pt-2">
+    <!-- 5. Knowledge Tags Index (Minimalist Topic Tags Strip) -->
+    <section class="border-t border-[#e6e2d8] pt-12 space-y-6">
+      <div class="flex items-baseline justify-between">
+        <div class="flex items-baseline gap-3">
+          <span class="text-[11px] font-mono font-bold uppercase tracking-widest text-[#1b1a18]">
+            SECTION 04
+          </span>
+          <span class="text-[#cfc9be]">/</span>
+          <h3 class="font-serif text-lg font-bold tracking-tight text-[#1b1a18]">
+            {t.tagsLabel}
+          </h3>
+        </div>
         <a
-          href={`/${locale}/about`}
-          class="text-xs uppercase tracking-widest font-semibold text-[#1a1a1a] hover:underline"
+          href={`/${locale}/tags`}
+          class="text-xs font-mono uppercase tracking-wider text-[#57544e] hover:text-[#1b1a18]"
         >
-          {t.navAbout} →
+          View All Tags →
         </a>
+      </div>
+
+      <div class="flex flex-wrap gap-x-4 gap-y-2 text-xs font-mono text-[#57544e]">
+        {['architecture', 'react', 'typescript', 'astro', 'ai', 'llm', 'agents', 'web-performance', 'design-systems', 'github', 'static-web'].map((tagId) => (
+          <a
+            href={`/${locale}/tag/${tagId}`}
+            class="hover:text-[#1b1a18] transition-colors"
+          >
+            #{getTagDisplayName(tagId, locale)}
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- 6. Editorial Colophon Statement -->
+    <section class="border-t border-[#1b1a18] pt-12 pb-6">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div class="md:col-span-4 text-[11px] font-mono uppercase tracking-widest text-[#88847b]">
+          STATEMENT OF PRACTICE
+        </div>
+        <div class="md:col-span-8 space-y-3">
+          <p class="font-serif text-lg text-[#1b1a18] leading-relaxed">
+            {siteConfig.author.bio[locale]}
+          </p>
+          <div class="pt-2">
+            <a
+              href={`/${locale}/about`}
+              class="text-xs font-mono uppercase tracking-wider font-semibold text-[#1b1a18] hover:underline underline-offset-4"
+            >
+              Read About the Engineering Architecture →
+            </a>
+          </div>
+        </div>
       </div>
     </section>
   </div>

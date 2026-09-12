@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink as LinkIcon } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 
 export interface ExternalLink {
   platform: string;
@@ -22,22 +22,22 @@ export const AlsoPublishedOn: React.FC<AlsoPublishedOnProps> = ({ links, label }
   };
 
   return (
-    <div className="my-10 rounded-sm border border-[#e5e5e0] bg-[#f9f8f3] p-5">
-      <div className="text-[11px] font-semibold tracking-widest uppercase text-[#737373] mb-3">
+    <div className="my-12 border-y border-[#e6e2d8] py-4">
+      <div className="text-[10px] font-mono uppercase tracking-widest text-[#88847b] mb-2.5">
         {label}
       </div>
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
         {links.map((link, idx) => (
           <a
             key={idx}
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#262626] bg-[#faf9f6] border border-[#e5e5e0] rounded-sm hover:border-[#1a1a1a] hover:bg-[#ffffff] transition-all"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-[#1b1a18] hover:text-[#1e3a5f] hover:underline underline-offset-4 transition-all"
           >
-            <span>{link.platform}</span>
-            <span className="text-[10px] text-[#737373]">({typeLabels[link.type] || link.type})</span>
-            <LinkIcon className="h-3 w-3 text-[#737373]" />
+            <span className="font-semibold">{link.platform}</span>
+            <span className="text-[10px] text-[#88847b]">[{typeLabels[link.type] || link.type}]</span>
+            <ArrowUpRight className="h-3 w-3 text-[#88847b]" />
           </a>
         ))}
       </div>

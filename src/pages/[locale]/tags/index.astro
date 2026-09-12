@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { ArrowUpRight } from 'lucide-react';
 import { siteConfig } from '../../../config/site.config';
 import { getTagDisplayName, tagsConfig } from '../../../config/tags';
 import { getArticlesByLocale } from '../../../lib/content';
@@ -19,7 +20,6 @@ const t = uiTranslations[locale];
 const allPosts = await getCollection('blog');
 const publishedArticles = getArticlesByLocale(allPosts, locale, false);
 
-// Aggregate tag occurrences in published articles for this locale
 const tagCountMap = new Map<string, number>();
 for (const a of publishedArticles) {
   for (const tag of a.data.tags) {
@@ -28,7 +28,6 @@ for (const a of publishedArticles) {
   }
 }
 
-// Ensure all predefined tags are listed even if 0 in this locale
 const allKnownTagIds = Array.from(
   new Set([...Object.keys(tagsConfig), ...Array.from(tagCountMap.keys())])
 );
@@ -60,14 +59,17 @@ const translationLinks = Object.fromEntries(
   translationLinks={translationLinks}
 >
   <div class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 py-10 sm:py-16 space-y-12">
-    <header class="border-b border-[#e5e5e0] pb-8 space-y-3">
-      <div class="text-xs uppercase font-semibold tracking-widest text-[#737373]">
-        {siteConfig.siteName[locale]}
+    <!-- Masthead -->
+    <header class="border-b border-[#1b1a18] pb-8 space-y-4">
+      <div class="flex items-center gap-3 text-xs font-mono uppercase tracking-widest text-[#88847b]">
+        <span>TAXONOMY</span>
+        <span>·</span>
+        <span>{sortedTags.length} TOPICS REGISTERED</span>
       </div>
-      <h1 class="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-[#1a1a1a]">
+      <h1 class="font-serif text-4xl sm:text-6xl font-bold tracking-tight text-[#1b1a18]">
         {t.tagsLabel}
       </h1>
-      <p class="font-serif text-base text-[#525252] max-w-2xl">
+      <p class="font-serif text-lg text-[#57544e] max-w-2xl leading-relaxed">
         {locale === 'zh-CN' && '按技术领域、框架、工程模式与实践主题索引所有技术文章。'}
         {locale === 'en' && 'Index of software engineering articles, AI practices, frameworks, and architecture notes organized by topic.'}
         {locale === 'fr' && 'Index thématique des articles de génie logiciel, pratiques IA, frameworks et architecture.'}
@@ -76,28 +78,39 @@ const translationLinks = Object.fromEntries(
       </p>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {sortedTags.map((tag) => (
+    <!-- Tag Index Table -->
+    <div class="divide-y divide-[#e6e2d8]">
+      {sortedTags.map((tag, idx) => (
         <a
           href={`/${locale}/tag/${encodeURIComponent(tag.id)}`}
-          class="group block p-6 rounded-sm border border-[#e5e5e0] bg-[#faf9f6] hover:bg-[#faf8f2] hover:border-[#d4d2cb] transition-all"
+          class="group py-6 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 items-baseline hover:bg-[#f3f0e8]/50 px-2 -mx-2 transition-colors block"
         >
-          <div class="flex items-baseline justify-between mb-2">
-            <h2 class="font-serif text-xl font-bold text-[#1a1a1a] group-hover:underline">
+          <div class="md:col-span-3 flex items-baseline justify-between md:justify-start gap-4">
+            <span class="text-xs font-mono text-[#88847b]">
+              0{idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
+            </span>
+            <span class="font-serif text-xl font-bold text-[#1b1a18] group-hover:text-[#1e3a5f] transition-colors">
               #{tag.displayName}
-            </h2>
-            <span class="text-xs font-mono text-[#737373] bg-[#f0eee9] px-2 py-0.5 rounded-xs">
-              {tag.count} {tag.count === 1 ? 'article' : 'articles'}
             </span>
           </div>
-          <div class="text-xs font-mono text-[#a3a3a3] mb-3">
-            id: {tag.id}
+
+          <div class="md:col-span-7 space-y-1">
+            <div class="text-xs font-mono text-[#88847b]">
+              slug: {tag.id}
+            </div>
+            {tag.description && (
+              <p class="font-serif text-sm text-[#57544e] leading-relaxed">
+                {tag.description}
+              </p>
+            )}
           </div>
-          {tag.description && (
-            <p class="font-serif text-xs text-[#525252] line-clamp-2 leading-relaxed">
-              {tag.description}
-            </p>
-          )}
+
+          <div class="md:col-span-2 flex items-baseline justify-between md:justify-end gap-2 text-xs font-mono">
+            <span class="text-[#88847b]">
+              {tag.count} {tag.count === 1 ? 'article' : 'articles'}
+            </span>
+            <ArrowUpRight className="h-3.5 w-3.5 text-[#88847b] group-hover:text-[#1b1a18] transition-colors" />
+          </div>
         </a>
       ))}
     </div>

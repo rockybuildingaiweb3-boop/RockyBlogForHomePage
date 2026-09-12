@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { ArrowLeft, Calendar, Clock, Globe } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Figure } from '../../../components/mdx/Figure';
 import { Note } from '../../../components/mdx/Note';
 import TableOfContents from '../../../components/article/TableOfContents.astro';
@@ -17,7 +17,7 @@ import {
   validateContentIntegrity,
 } from '../../../lib/content';
 import { calculateReadingMetrics } from '../../../lib/readingTime';
-import { localeDisplayNames, uiTranslations } from '../../../i18n/translations';
+import { uiTranslations } from '../../../i18n/translations';
 import type { SupportedLocale, TocItem } from '../../../types/content';
 
 export async function getStaticPaths() {
@@ -83,8 +83,6 @@ const tocItems: TocItem[] = headings
     depth: h.depth as 2 | 3 | 4,
   }));
 
-// Precompute alternate hreflangs and translation navigation links
-// Strictly Section 5.1 & 5.2: Only emit hreflang for languages where a translation truly exists!
 const alternateHreflangs: Record<string, string> = {};
 const translationLinks: Record<SupportedLocale, { url: string; available: boolean }> = {
   'zh-CN': { url: '/zh-CN/blog', available: false },
@@ -106,9 +104,6 @@ for (const loc of siteConfig.supportedLocales) {
   }
 }
 
-// Canonical URL resolution per Section 4.1:
-// If canonicalUrl is explicitly provided (e.g. cross-posted from another authoritative source), preserve it.
-// Otherwise, default to this article's own absolute URL.
 const canonicalUrl =
   entry.data.canonicalUrl && entry.data.canonicalUrl.trim().length > 0
     ? entry.data.canonicalUrl.trim()
@@ -123,7 +118,6 @@ const coverAbsoluteUrl = coverSrc
 
 const coverAltText = entry.data.coverAlt || entry.data.title;
 
-// JSON-LD Schema.org BlogPosting metadata
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
@@ -165,130 +159,134 @@ const jsonLd = {
   jsonLd={jsonLd}
   translationLinks={translationLinks}
 >
-  <article class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 py-8 sm:py-12">
-    <!-- Back to Category / Blog Navigation Link -->
-    <div class="mb-8">
+  <article class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 py-10 sm:py-16">
+    <!-- Back to Category Navigation -->
+    <div class="mb-10">
       <a
         href={`/${locale}/category/${entry.data.category}`}
-        class="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-[#737373] hover:text-[#1a1a1a] transition-colors"
+        class="group inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#88847b] hover:text-[#1b1a18] transition-colors"
       >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        <span>{siteConfig.categories.find((c) => c.id === entry.data.category)?.name[locale] || entry.data.category}</span>
+        <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" />
+        <span>01 / {siteConfig.categories.find((c) => c.id === entry.data.category)?.name[locale] || entry.data.category}</span>
       </a>
     </div>
 
-    <!-- Article Header -->
+    <!-- Editorial Article Header (Masthead) -->
     <header class="max-w-4xl space-y-6">
-      <div class="flex flex-wrap items-center gap-4 text-xs font-mono text-[#737373]">
-        <span class="flex items-center gap-1.5">
-          <Calendar className="h-3.5 w-3.5" />
-          <time datetime={entry.data.pubDate}>{entry.data.pubDate}</time>
-          {entry.data.updatedDate && (
-            <span class="text-[11px] text-[#a3a3a3]" title="Last updated">
-              (rev: {entry.data.updatedDate})
-            </span>
-          )}
-        </span>
-        <span>•</span>
-        <span class="flex items-center gap-1.5">
-          <Clock className="h-3.5 w-3.5" />
-          <span>{t.readingTimeFormat(readingMin)}</span>
-        </span>
-        <span>•</span>
-        <span class="uppercase tracking-wider px-2 py-0.5 bg-[#f0eee9] text-[#525252] rounded-xs text-[11px]">
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-mono text-[#88847b]">
+        <span class="font-bold uppercase text-[#1b1a18]">
           {siteConfig.categories.find((c) => c.id === entry.data.category)?.name[locale] || entry.data.category}
         </span>
+        <span>·</span>
+        <time datetime={entry.data.pubDate}>{entry.data.pubDate}</time>
+        {entry.data.updatedDate && (
+          <span class="text-[#a5a095]" title="Last revised">
+            (rev: {entry.data.updatedDate})
+          </span>
+        )}
+        <span>·</span>
+        <span>{t.readingTimeFormat(readingMin)}</span>
+        <span>·</span>
+        <span>ID: {entry.data.slug}</span>
       </div>
 
-      <h1 class="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#1a1a1a] leading-[1.12]">
+      <h1 class="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#1b1a18] leading-[1.1]">
         {entry.data.title}
       </h1>
 
-      <p class="font-serif text-lg sm:text-xl text-[#525252] leading-relaxed">
-        {entry.data.description}
-      </p>
+      <div class="border-l-2 border-[#1b1a18] pl-6 py-1 my-6">
+        <p class="font-serif text-xl sm:text-2xl text-[#57544e] leading-relaxed italic">
+          {entry.data.description}
+        </p>
+      </div>
 
-      <!-- Cross-Language Translation Bar -->
-      <div class="pt-4 border-t border-[#e5e5e0] flex flex-wrap items-center gap-3 text-xs">
-        <span class="flex items-center gap-1 text-[#737373] font-medium">
-          <Globe className="h-3.5 w-3.5" />
-          <span>{t.availableIn}:</span>
+      <!-- Parallel Editions Translation Bar -->
+      <div class="pt-6 border-t border-[#e6e2d8] flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-mono">
+        <span class="text-[#88847b] uppercase tracking-wider">
+          {t.availableIn}:
         </span>
-        {siteConfig.supportedLocales.map((loc) => {
-          const isCurrent = loc === locale;
-          const linkInfo = translationLinks[loc];
-          const hasTranslation = linkInfo ? linkInfo.available : false;
+        <div class="flex items-center gap-2.5">
+          {siteConfig.supportedLocales.map((loc, idx) => {
+            const isCurrent = loc === locale;
+            const linkInfo = translationLinks[loc];
+            const hasTranslation = linkInfo ? linkInfo.available : false;
+            const shortCode = loc === 'zh-CN' ? 'ZH' : loc.toUpperCase();
 
-          if (isCurrent) {
             return (
-              <span class="px-2.5 py-1 bg-[#1a1a1a] text-[#faf9f6] font-medium rounded-sm">
-                {localeDisplayNames[loc]}
-              </span>
+              <div class="flex items-center gap-2.5">
+                {idx > 0 && <span class="text-[#d3cebf]">/</span>}
+                {isCurrent ? (
+                  <span class="font-bold text-[#1b1a18] underline underline-offset-4 decoration-1 decoration-[#1b1a18]">
+                    {shortCode}
+                  </span>
+                ) : hasTranslation ? (
+                  <a
+                    href={linkInfo.url}
+                    class="text-[#88847b] hover:text-[#1b1a18] transition-colors"
+                  >
+                    {shortCode}
+                  </a>
+                ) : (
+                  <span
+                    title={t.translationMissing}
+                    class="text-[#c8c4b7] line-through cursor-not-allowed"
+                  >
+                    {shortCode}
+                  </span>
+                )}
+              </div>
             );
-          }
-
-          if (hasTranslation) {
-            return (
-              <a
-                href={linkInfo.url}
-                class="px-2.5 py-1 border border-[#e5e5e0] text-[#525252] hover:border-[#1a1a1a] hover:text-[#1a1a1a] bg-[#faf9f6] font-medium rounded-sm transition-colors"
-              >
-                {localeDisplayNames[loc]}
-              </a>
-            );
-          }
-
-          return (
-            <span
-              title={t.translationMissing}
-              class="px-2.5 py-1 text-[#a3a3a3] line-through decoration-[#d4d4d4] cursor-not-allowed text-[11px]"
-            >
-              {localeDisplayNames[loc]}
-            </span>
-          );
-        })}
+          })}
+        </div>
       </div>
     </header>
 
-    <!-- Hero Cover Image (LCP optimized with eager loading & high priority) -->
+    <!-- Cover Plate Hero Image -->
     {coverSrc && (
-      <div class="my-12 -mx-4 sm:-mx-8 lg:-mx-12 overflow-hidden rounded-sm bg-[#e8e6e1] aspect-[16/9] max-h-[680px]">
-        <img
-          src={coverSrc}
-          alt={coverAltText}
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-          class="h-full w-full object-cover"
-        />
+      <div class="my-12">
+        <div class="overflow-hidden border border-[#e6e2d8] bg-[#e8e4db] aspect-[16/9] max-h-[640px]">
+          <img
+            src={coverSrc}
+            alt={coverAltText}
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="h-full w-full object-cover"
+          />
+        </div>
+        <div class="mt-2.5 flex items-baseline justify-between text-[10px] font-mono text-[#88847b]">
+          <span>PLATE 01. {entry.data.slug}</span>
+          <span>{entry.data.coverAlt || 'Editorial Photographic Plate'}</span>
+        </div>
       </div>
     )}
 
-    <!-- Main Content + Table of Contents Sticky Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-      <main class="lg:col-span-8 min-w-0">
-        <div class="article-content font-serif text-[#262626] text-lg sm:text-xl leading-[1.8] space-y-6">
+    <!-- Main Content + Marginalia TOC Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+      <!-- Article Text Stream (8 cols) -->
+      <main class="lg:col-span-8 min-w-0 max-w-[68ch]">
+        <div class="editorial-prose">
           <Content components={{ Figure, Note }} />
         </div>
 
-        <!-- Tags -->
-        <div class="mt-16 pt-8 border-t border-[#e5e5e0] flex flex-wrap gap-2">
-          <span class="text-xs uppercase tracking-widest text-[#737373] self-center mr-2">
+        <!-- Topics / Tags Index -->
+        <div class="mt-16 pt-8 border-t border-[#e6e2d8] flex flex-wrap items-baseline gap-3 text-xs font-mono">
+          <span class="uppercase tracking-widest text-[#88847b]">
             {t.tagsLabel}:
           </span>
           {entry.data.tags.map((tag: string) => (
             <a
               href={`/${locale}/tag/${tag}`}
-              class="text-xs font-mono text-[#525252] bg-[#f5f4ef] hover:bg-[#e8e6e1] px-3 py-1 rounded-sm transition-colors"
+              class="text-[#57544e] hover:text-[#1b1a18] underline underline-offset-4 decoration-[#cfc9be] hover:decoration-[#1b1a18] transition-colors"
             >
               #{getTagDisplayName(tag, locale)}
             </a>
           ))}
         </div>
 
-        <!-- Author Byline -->
-        <div class="my-12 rounded-sm border border-[#e5e5e0] bg-[#faf9f6] p-6 flex items-start gap-4">
-          <div class="h-12 w-12 rounded-full overflow-hidden bg-[#e8e6e1] shrink-0">
+        <!-- Author Colophon Inscription -->
+        <div class="my-12 border-t border-b border-[#e6e2d8] py-8 flex items-start gap-6">
+          <div class="h-14 w-14 shrink-0 overflow-hidden border border-[#e6e2d8] bg-[#e8e4db]">
             <img
               src={siteConfig.author.avatar}
               alt={siteConfig.author.name}
@@ -297,22 +295,25 @@ const jsonLd = {
               class="h-full w-full object-cover"
             />
           </div>
-          <div class="space-y-1 text-sm">
-            <div class="font-serif font-bold text-[#1a1a1a]">
+          <div class="space-y-1.5 text-xs">
+            <div class="text-[10px] font-mono uppercase tracking-widest text-[#88847b]">
+              AUTHOR
+            </div>
+            <div class="font-serif text-base font-bold text-[#1b1a18]">
               {entry.data.author || siteConfig.author.name}
             </div>
-            <div class="font-serif text-xs text-[#525252] leading-relaxed">
+            <div class="font-serif text-sm text-[#57544e] leading-relaxed max-w-xl">
               {siteConfig.author.bio[locale]}
             </div>
           </div>
         </div>
 
-        <!-- Also Published On -->
+        <!-- Also Published On external link plate -->
         {entry.data.links && entry.data.links.length > 0 && (
           <AlsoPublishedOn links={entry.data.links} label={t.alsoPublishedOn} />
         )}
 
-        <!-- Previous & Next Navigation -->
+        <!-- Previous & Next Chronology -->
         <PreviousNext
           previous={previous}
           next={next}
@@ -320,7 +321,7 @@ const jsonLd = {
           nextLabel={t.nextArticle}
         />
 
-        <!-- Related Articles -->
+        <!-- Related Inquiries -->
         {relatedArticles.length > 0 && (
           <RelatedArticles
             articles={relatedArticles}
@@ -329,9 +330,9 @@ const jsonLd = {
         )}
       </main>
 
-      <!-- Sticky Table of Contents Sidebar (Pure static Astro component, 0 React Hydration) -->
+      <!-- Sticky Marginalia Index (TOC) -->
       {tocItems.length > 0 && (
-        <aside class="hidden lg:block lg:col-span-4 sticky top-24">
+        <aside class="hidden lg:block lg:col-span-4 sticky top-20">
           <TableOfContents
             items={tocItems}
             titleLabel={t.tableOfContents}

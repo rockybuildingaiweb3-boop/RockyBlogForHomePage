@@ -1,5 +1,4 @@
 ---
-import { List } from 'lucide-react';
 import type { TocItem } from '../../types/content';
 
 export interface Props {
@@ -11,22 +10,26 @@ const { items, titleLabel } = Astro.props;
 ---
 
 {items.length > 0 && (
-  <nav id="table-of-contents" class="rounded-sm border border-[#e5e5e0] bg-[#faf9f6] p-5 text-sm" aria-label={titleLabel}>
-    <div class="flex items-center gap-2 pb-3 mb-3 border-b border-[#e5e5e0] text-xs font-semibold tracking-wider uppercase text-[#1a1a1a]">
-      <List className="h-3.5 w-3.5" />
-      <span>{titleLabel}</span>
+  <nav
+    id="table-of-contents"
+    class="border-l border-[#e6e2d8] pl-6 py-2 text-xs"
+    aria-label={titleLabel}
+  >
+    <div class="text-[10px] font-mono font-bold uppercase tracking-widest text-[#88847b] mb-4">
+      {titleLabel}
     </div>
-    <ul class="space-y-2 font-sans text-xs">
-      {items.map((item) => {
-        const indent = item.depth === 3 ? 'pl-4' : item.depth === 4 ? 'pl-7' : 'pl-0';
+    <ul class="space-y-3 font-sans">
+      {items.map((item, idx) => {
+        const indent = item.depth === 3 ? 'pl-3' : item.depth === 4 ? 'pl-6' : 'pl-0';
         return (
           <li class={indent}>
             <a
               href={`#${item.id}`}
               data-toc-id={item.id}
-              class="toc-link block w-full text-left transition-colors leading-relaxed text-[#737373] hover:text-[#262626]"
+              class="toc-link block w-full text-left transition-colors leading-relaxed text-[#757168] hover:text-[#1b1a18]"
             >
-              {item.text}
+              <span class="text-[10px] font-mono text-[#a5a095] mr-1.5">{item.depth === 2 ? `0${idx + 1}` : '·'}</span>
+              <span>{item.text}</span>
             </a>
           </li>
         );
@@ -54,8 +57,8 @@ const { items, titleLabel } = Astro.props;
       }
     });
 
-    const activeClasses = ['font-medium', 'text-[#1a1a1a]', 'underline', 'underline-offset-4', 'decoration-1', 'decoration-[#1a1a1a]'];
-    const inactiveClasses = ['text-[#737373]'];
+    const activeClasses = ['font-semibold', 'text-[#1b1a18]', 'translate-x-1'];
+    const inactiveClasses = ['text-[#757168]', 'font-normal'];
 
     function setActive(activeLink) {
       links.forEach((link) => {

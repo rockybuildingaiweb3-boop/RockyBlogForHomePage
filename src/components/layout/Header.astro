@@ -1,5 +1,5 @@
 ---
-import { Globe, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { siteConfig } from '../../config/site.config';
 import { localeDisplayNames, uiTranslations } from '../../i18n/translations';
 import type { SupportedLocale } from '../../types/content';
@@ -31,120 +31,115 @@ const fallbackLinks: Record<SupportedLocale, { url: string; available: boolean }
 const activeTranslationLinks = translationLinks || fallbackLinks;
 ---
 
-<header class="sticky top-0 z-40 w-full border-b border-[#e5e5e0] bg-[#faf9f6]/95 backdrop-blur-md transition-colors">
-  <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-8 lg:px-12">
-    <!-- Masthead / Brand -->
-    <div class="flex items-center gap-6">
-      <a
-        id="nav-logo"
-        href={`/${currentLocale}`}
-        class="text-left group block"
-      >
-        <span class="block font-serif text-xl sm:text-2xl font-bold tracking-tight text-[#1a1a1a] transition-colors group-hover:text-[#404040]">
-          {siteConfig.siteName[currentLocale]}
-        </span>
-        <span class="block text-[10px] tracking-[0.2em] uppercase text-[#737373] font-sans">
-          Software & Systems Engineering
-        </span>
-      </a>
-    </div>
+<header class="sticky top-0 z-40 w-full border-b border-[#e6e2d8] bg-[#f9f8f5]/95 backdrop-blur-[2px] transition-colors">
+  <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-8 lg:px-12">
+    <!-- Left: Author Brand + Engineering Discipline -->
+    <a
+      id="nav-logo"
+      href={`/${currentLocale}`}
+      class="group flex items-baseline gap-2.5 transition-opacity hover:opacity-85"
+    >
+      <span class="font-serif text-lg font-bold tracking-tight text-[#1b1a18]">
+        ROCKY
+      </span>
+      <span class="hidden sm:inline-block text-[11px] font-mono tracking-wider text-[#88847b]">
+        Software · AI · Design
+      </span>
+    </a>
 
-    <!-- Desktop Navigation -->
-    <nav class="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide text-[#525252]">
+    <!-- Center: Primary Editorial Navigation -->
+    <nav class="hidden md:flex items-center gap-7 text-[13px] font-medium text-[#57544e]">
       {navLinks.map((link) => (
         <a
           href={link.path}
           id={`nav-link-${link.label}`}
-          class="transition-colors hover:text-[#1a1a1a]"
+          class="transition-colors hover:text-[#1b1a18] py-1"
         >
           {link.label}
         </a>
       ))}
     </nav>
 
-    <!-- Multilingual Switcher & Utilities -->
-    <div class="hidden lg:flex items-center gap-4">
-      <div class="flex items-center rounded-sm border border-[#e5e5e0] bg-[#f5f4ef] p-0.5 text-xs">
-        <div class="flex items-center px-2 py-1 text-[#737373]" title={t.languageSwitcherLabel}>
-          <Globe className="h-3.5 w-3.5 mr-1" />
-        </div>
-        {siteConfig.supportedLocales.map((loc) => {
-          const isActive = loc === currentLocale;
-          const linkInfo = activeTranslationLinks[loc];
-          const hasTranslation = linkInfo ? linkInfo.available : true;
-          const targetUrl = linkInfo ? linkInfo.url : `/${loc}`;
+    <!-- Right: Lightweight Typographic Language Switcher -->
+    <div class="hidden lg:flex items-center gap-2.5 text-[11px] font-mono tracking-wider">
+      {siteConfig.supportedLocales.map((loc, idx) => {
+        const isActive = loc === currentLocale;
+        const linkInfo = activeTranslationLinks[loc];
+        const hasTranslation = linkInfo ? linkInfo.available : true;
+        const targetUrl = linkInfo ? linkInfo.url : `/${loc}`;
+        const shortCode = loc === 'zh-CN' ? 'ZH' : loc.toUpperCase();
 
-          return (
+        return (
+          <div class="flex items-center gap-2.5">
+            {idx > 0 && <span class="text-[#d3cebf]">/</span>}
             <a
               href={targetUrl}
-              title={hasTranslation ? `${localeDisplayNames[loc]}` : `${localeDisplayNames[loc]} (${t.translationMissing})`}
-              class={`relative rounded-xs px-2.5 py-1 text-[11px] font-medium transition-all ${
+              title={hasTranslation ? localeDisplayNames[loc] : `${localeDisplayNames[loc]} (${t.translationMissing})`}
+              class={`transition-colors py-0.5 ${
                 isActive
-                  ? 'bg-[#1a1a1a] text-[#faf9f6] shadow-xs'
+                  ? 'text-[#1b1a18] font-bold underline underline-offset-4 decoration-1 decoration-[#1b1a18]'
                   : hasTranslation
-                    ? 'text-[#525252] hover:text-[#1a1a1a] hover:bg-[#eae8e1]'
-                    : 'text-[#a3a3a3] hover:text-[#525252] opacity-75'
+                    ? 'text-[#88847b] hover:text-[#1b1a18]'
+                    : 'text-[#c8c4b7] line-through cursor-not-allowed'
               }`}
             >
-              {loc}
-              {!hasTranslation && !isActive && (
-                <span class="ml-0.5 text-[9px] text-[#a3a3a3]" title={t.translationMissing}>•</span>
-              )}
+              {shortCode}
             </a>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
     </div>
 
     <!-- Mobile Menu Button -->
     <button
       id="mobile-menu-btn"
       aria-label="Toggle Menu"
-      class="p-2 text-[#404040] hover:text-[#1a1a1a] md:hidden focus:outline-hidden"
+      class="p-1.5 text-[#57544e] hover:text-[#1b1a18] md:hidden focus:outline-hidden"
     >
       <Menu className="h-5 w-5" />
     </button>
   </div>
 
   <!-- Mobile Dropdown Panel -->
-  <div id="mobile-menu-panel" class="hidden border-b border-[#e5e5e0] bg-[#faf9f6] px-6 py-6 md:hidden">
-    <nav class="flex flex-col gap-4 text-base font-serif">
+  <div id="mobile-menu-panel" class="hidden border-b border-[#e6e2d8] bg-[#f9f8f5] px-6 py-6 md:hidden">
+    <div class="text-[10px] font-mono uppercase tracking-widest text-[#88847b] mb-4">
+      Navigation
+    </div>
+    <nav class="flex flex-col gap-3 font-serif text-lg">
       {navLinks.map((link) => (
         <a
           href={link.path}
-          class="text-left text-[#404040] hover:text-[#1a1a1a] py-1 border-b border-[#f0eee9]"
+          class="text-left text-[#1b1a18] hover:text-[#1e3a5f] py-1 border-b border-[#ece8de]"
         >
           {link.label}
         </a>
       ))}
     </nav>
 
-    <div class="mt-6 pt-4 border-t border-[#e5e5e0]">
-      <div class="text-[11px] font-semibold tracking-wider uppercase text-[#737373] mb-3">
-        {t.languageSwitcherLabel}
+    <div class="mt-6 pt-4 border-t border-[#e6e2d8]">
+      <div class="text-[10px] font-mono uppercase tracking-widest text-[#88847b] mb-3">
+        Edition / Language
       </div>
-      <div class="grid grid-cols-2 gap-2 text-xs">
+      <div class="flex flex-wrap items-center gap-4 text-xs font-mono">
         {siteConfig.supportedLocales.map((loc) => {
           const isActive = loc === currentLocale;
           const linkInfo = activeTranslationLinks[loc];
           const hasTranslation = linkInfo ? linkInfo.available : true;
           const targetUrl = linkInfo ? linkInfo.url : `/${loc}`;
+          const shortCode = loc === 'zh-CN' ? 'ZH' : loc.toUpperCase();
 
           return (
             <a
               href={targetUrl}
-              class={`flex items-center justify-between p-2.5 rounded-sm border ${
+              class={`py-1 ${
                 isActive
-                  ? 'border-[#1a1a1a] bg-[#1a1a1a] text-[#faf9f6] font-semibold'
+                  ? 'text-[#1b1a18] font-bold border-b border-[#1b1a18]'
                   : hasTranslation
-                    ? 'border-[#e5e5e0] bg-[#f5f4ef] text-[#262626] hover:border-[#a3a3a3]'
-                    : 'border-[#e5e5e0] bg-[#faf9f6] text-[#a3a3a3]'
+                    ? 'text-[#57544e] hover:text-[#1b1a18]'
+                    : 'text-[#c8c4b7] line-through'
               }`}
             >
-              <span>{localeDisplayNames[loc]}</span>
-              <span class="text-[10px] font-mono uppercase">
-                {hasTranslation ? loc : t.translationMissing}
-              </span>
+              {shortCode} ({localeDisplayNames[loc]})
             </a>
           );
         })}

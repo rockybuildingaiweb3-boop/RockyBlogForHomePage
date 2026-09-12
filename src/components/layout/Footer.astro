@@ -17,54 +17,68 @@ const hasSocial = Boolean(
 );
 ---
 
-<footer class="border-t border-[#e5e5e0] bg-[#f5f4ef] text-[#525252] transition-colors">
+<footer class="border-t border-[#e6e2d8] bg-[#f4f2eb] text-[#57544e] transition-colors">
   <div class="mx-auto max-w-7xl px-4 py-16 sm:px-8 lg:px-12">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
-      <!-- Col 1: Masthead & Bio -->
-      <div class="md:col-span-2 space-y-4">
-        <h3 class="font-serif text-2xl font-bold tracking-tight text-[#1a1a1a]">
-          {siteConfig.siteName[currentLocale]}
-        </h3>
-        <p class="max-w-md text-sm leading-relaxed text-[#525252] font-serif">
+    <!-- Main Colophon Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-16">
+      <!-- Col 1: Editorial Identity & Purpose (6 cols) -->
+      <div class="md:col-span-6 space-y-5">
+        <div class="space-y-2">
+          <div class="text-[10px] font-mono uppercase tracking-widest text-[#88847b]">
+            Colophon & Archive Identity
+          </div>
+          <h3 class="font-serif text-2xl font-bold tracking-tight text-[#1b1a18]">
+            ROCKY
+          </h3>
+        </div>
+
+        <p class="max-w-lg font-serif text-base leading-relaxed text-[#3b3935]">
           {siteConfig.siteDescription[currentLocale]}
         </p>
-        <p class="text-xs text-[#737373] leading-relaxed">
+
+        <p class="max-w-lg text-xs leading-relaxed text-[#757168] font-sans">
           {siteConfig.author.bio[currentLocale]}
         </p>
+
+        <div class="pt-2 text-[11px] font-mono text-[#88847b] space-y-1">
+          <div>PARADIGM: STATIC BY DEFAULT · ZERO DYNAMIC RUNTIME</div>
+          <div>TYPESET IN NEWSREADER & JETBRAINS MONO</div>
+        </div>
       </div>
 
-      <!-- Col 2: Categories -->
-      <div class="space-y-3">
-        <h4 class="text-xs font-semibold tracking-widest uppercase text-[#1a1a1a]">
-          {t.categoriesTitle}
-        </h4>
-        <ul class="space-y-2 text-sm">
-          {siteConfig.categories.map((cat) => (
+      <!-- Col 2: Topics Index (3 cols) -->
+      <div class="md:col-span-3 space-y-4">
+        <div class="text-[10px] font-mono uppercase tracking-widest text-[#88847b]">
+          01 / Topics Index
+        </div>
+        <ul class="space-y-2.5 text-xs font-medium">
+          {siteConfig.categories.map((cat, idx) => (
             <li>
               <a
                 href={`/${currentLocale}/category/${cat.id}`}
-                class="hover:text-[#1a1a1a] transition-colors"
+                class="hover:text-[#1b1a18] transition-colors flex items-baseline justify-between group"
               >
-                {cat.name[currentLocale]}
+                <span class="group-hover:underline underline-offset-4">{cat.name[currentLocale]}</span>
+                <span class="text-[10px] font-mono text-[#88847b]">0{idx + 1}</span>
               </a>
             </li>
           ))}
         </ul>
       </div>
 
-      <!-- Col 3: Languages & Social -->
-      <div class="space-y-3">
-        <h4 class="text-xs font-semibold tracking-widest uppercase text-[#1a1a1a]">
-          {t.languageSwitcherLabel}
-        </h4>
-        <div class="flex flex-wrap gap-2 text-xs">
+      <!-- Col 3: Editions & Indices (3 cols) -->
+      <div class="md:col-span-3 space-y-4">
+        <div class="text-[10px] font-mono uppercase tracking-widest text-[#88847b]">
+          02 / Editions
+        </div>
+        <div class="flex flex-wrap gap-x-3 gap-y-1.5 text-xs font-mono">
           {siteConfig.supportedLocales.map((loc) => (
             <a
               href={`/${loc}`}
-              class={`px-2.5 py-1 border rounded-sm transition-colors ${
+              class={`transition-colors ${
                 loc === currentLocale
-                  ? 'border-[#1a1a1a] bg-[#1a1a1a] text-[#faf9f6]'
-                  : 'border-[#e5e5e0] bg-[#faf9f6] text-[#525252] hover:border-[#a3a3a3]'
+                  ? 'text-[#1b1a18] font-bold underline underline-offset-4'
+                  : 'text-[#88847b] hover:text-[#1b1a18]'
               }`}
             >
               {localeDisplayNames[loc]}
@@ -74,18 +88,18 @@ const hasSocial = Boolean(
 
         {hasSocial && (
           <div class="pt-4 space-y-2">
-            <h5 class="text-[11px] font-semibold tracking-widest uppercase text-[#737373]">
-              Profiles
-            </h5>
-            <div class="flex flex-wrap gap-3 text-xs">
+            <div class="text-[10px] font-mono uppercase tracking-widest text-[#88847b]">
+              03 / External Records
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-xs">
               {siteConfig.author.social.github && (
                 <a
                   href={siteConfig.author.social.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="hover:text-[#1a1a1a] transition-colors"
+                  class="hover:text-[#1b1a18] transition-colors"
                 >
-                  GitHub
+                  GitHub ↗
                 </a>
               )}
               {siteConfig.author.social.x && (
@@ -93,9 +107,9 @@ const hasSocial = Boolean(
                   href={siteConfig.author.social.x}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="hover:text-[#1a1a1a] transition-colors"
+                  class="hover:text-[#1b1a18] transition-colors"
                 >
-                  X
+                  X ↗
                 </a>
               )}
               {siteConfig.author.social.linkedin && (
@@ -103,17 +117,17 @@ const hasSocial = Boolean(
                   href={siteConfig.author.social.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="hover:text-[#1a1a1a] transition-colors"
+                  class="hover:text-[#1b1a18] transition-colors"
                 >
-                  LinkedIn
+                  LinkedIn ↗
                 </a>
               )}
               {siteConfig.author.social.email && (
                 <a
                   href={siteConfig.author.social.email}
-                  class="hover:text-[#1a1a1a] transition-colors"
+                  class="hover:text-[#1b1a18] transition-colors"
                 >
-                  Email
+                  Email ↗
                 </a>
               )}
             </div>
@@ -122,21 +136,27 @@ const hasSocial = Boolean(
       </div>
     </div>
 
-    <!-- Bottom Colophon -->
-    <div class="mt-16 border-t border-[#e5e5e0] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#737373]">
+    <!-- Bottom Architectural Rule & Copyright -->
+    <div class="mt-16 border-t border-[#e6e2d8] pt-8 flex flex-col sm:flex-row items-baseline justify-between gap-4 text-[11px] font-mono text-[#88847b]">
       <div>
-        © 2026 {siteConfig.author.name}. All rights reserved.
+        © 2026 {siteConfig.author.name}. All technical writings open under CC BY-NC 4.0.
       </div>
       <div class="flex items-center gap-6">
         <a
+          href={`/${currentLocale}/tags`}
+          class="hover:text-[#1b1a18] transition-colors"
+        >
+          {t.navTags}
+        </a>
+        <a
           href={`/${currentLocale}/archive`}
-          class="hover:text-[#1a1a1a] transition-colors"
+          class="hover:text-[#1b1a18] transition-colors"
         >
           {t.navArchive}
         </a>
         <a
           href={`/${currentLocale}/about`}
-          class="hover:text-[#1a1a1a] transition-colors"
+          class="hover:text-[#1b1a18] transition-colors"
         >
           {t.navAbout}
         </a>

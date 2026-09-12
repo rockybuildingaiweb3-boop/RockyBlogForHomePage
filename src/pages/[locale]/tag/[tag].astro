@@ -1,9 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { ArrowUpRight, ArrowLeft } from 'lucide-react';
 import { siteConfig } from '../../../config/site.config';
 import { getTagDisplayName, tagsConfig } from '../../../config/tags';
-import { getArticlesByTag, getArticlesByLocale } from '../../../lib/content';
+import { getArticlesByTag } from '../../../lib/content';
 import { calculateReadingMetrics } from '../../../lib/readingTime';
 import { uiTranslations } from '../../../i18n/translations';
 import type { SupportedLocale } from '../../../types/content';
@@ -12,7 +13,6 @@ export async function getStaticPaths() {
   const allPosts = await getCollection('blog');
   const published = allPosts.filter((e) => !e.data.draft);
 
-  // Collect all unique tags across all published articles plus predefined tags
   const globalTags = new Set<string>(Object.keys(tagsConfig));
   for (const post of published) {
     for (const tag of post.data.tags) {
@@ -37,17 +37,6 @@ const t = uiTranslations[locale];
 const allPosts = await getCollection('blog');
 const normalizedTagId = tag.toLowerCase().trim();
 const articles = getArticlesByTag(allPosts, locale, normalizedTagId);
-const allArticles = getArticlesByLocale(allPosts, locale, false);
-
-// Compute tag counts for cloud
-const tagCounts = new Map<string, number>();
-for (const a of allArticles) {
-  for (const tItem of a.data.tags) {
-    const key = tItem.toLowerCase().trim();
-    tagCounts.set(key, (tagCounts.get(key) || 0) + 1);
-  }
-}
-const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1]);
 
 const displayName = getTagDisplayName(normalizedTagId, locale);
 const canonicalUrl = `${siteConfig.siteUrl}/${locale}/tag/${normalizedTagId}`;
@@ -69,74 +58,83 @@ const translationLinks = Object.fromEntries(
   alternateHreflangs={alternateHreflangs}
   translationLinks={translationLinks}
 >
-  <div class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 py-8 sm:py-12 space-y-12">
-    <header class="border-b border-[#e5e5e0] pb-8 space-y-4">
-      <div class="flex items-center gap-2 text-xs uppercase font-semibold tracking-widest text-[#737373]">
-        <a href={`/${locale}/tags`} class="hover:underline">{t.tagsLabel}</a>
+  <div class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 py-10 sm:py-16 space-y-12">
+    <!-- Header -->
+    <header class="border-b border-[#1b1a18] pb-8 space-y-4">
+      <div class="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#88847b]">
+        <a href={`/${locale}/tags`} class="hover:text-[#1b1a18] flex items-center gap-1">
+          <ArrowLeft className="h-3 w-3" />
+          <span>ALL TAGS</span>
+        </a>
         <span>/</span>
-        <span class="font-mono text-[#a3a3a3]">{normalizedTagId}</span>
+        <span class="text-[#a5a095]">{normalizedTagId}</span>
+        <span>·</span>
+        <span>{articles.length} {articles.length === 1 ? 'RECORD' : 'RECORDS'}</span>
       </div>
-      <h1 class="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-[#1a1a1a]">
+
+      <h1 class="font-serif text-4xl sm:text-6xl font-bold tracking-tight text-[#1b1a18]">
         #{displayName}
       </h1>
 
-      <!-- Tag cloud pill list -->
-      <div class="flex flex-wrap gap-2 pt-4">
-        {sortedTags.map(([tItem, count]) => {
-          const isActive = tItem.toLowerCase() === normalizedTagId;
-          const itemDisplayName = getTagDisplayName(tItem, locale);
+      {tagsConfig[normalizedTagId]?.description?.[locale] && (
+        <p class="font-serif text-lg text-[#57544e] max-w-2xl leading-relaxed">
+          {tagsConfig[normalizedTagId].description[locale]}
+        </p>
+      )}
+    </header>
+
+    <!-- Articles Catalog -->
+    {articles.length === 0 ? (
+      <div class="py-20 text-center text-[#88847b] font-serif text-lg">
+        {t.noArticlesFound}
+      </div>
+    ) : (
+      <div class="divide-y divide-[#e6e2d8]">
+        {articles.map((article) => {
+          const readingMin = calculateReadingMetrics(article.body || '', locale).minutes;
           return (
-            <a
-              href={`/${locale}/tag/${encodeURIComponent(tItem)}`}
-              class={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-sm transition-colors ${
-                isActive
-                  ? 'bg-[#1a1a1a] text-[#faf9f6]'
-                  : 'bg-[#f5f4ef] text-[#525252] hover:bg-[#e8e6e1]'
-              }`}
-            >
-              <span>#{itemDisplayName}</span>
-              <span class="text-[10px] opacity-60">({count})</span>
-            </a>
+            <article class="group py-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-baseline hover:bg-[#f3f0e8]/50 px-2 -mx-2 transition-colors">
+              <div class="md:col-span-3 space-y-1 font-mono text-xs">
+                <div class="text-[#1b1a18] font-medium">{article.data.pubDate}</div>
+                <div class="text-[11px] uppercase tracking-wider text-[#88847b]">
+                  {siteConfig.categories.find((c) => c.id === article.data.category)?.name[locale] || article.data.category}
+                </div>
+                <div class="text-[10px] text-[#a5a095]">
+                  {t.readingTimeFormat(readingMin)}
+                </div>
+              </div>
+
+              <div class="md:col-span-7 space-y-2">
+                <h2 class="font-serif text-xl sm:text-2xl font-bold text-[#1b1a18] leading-snug group-hover:text-[#1e3a5f] transition-colors">
+                  <a href={`/${locale}/blog/${article.data.slug}`}>
+                    {article.data.title}
+                  </a>
+                </h2>
+                <p class="font-serif text-sm text-[#57544e] leading-relaxed line-clamp-2">
+                  {article.data.description}
+                </p>
+                <div class="flex flex-wrap gap-x-3 gap-y-1 pt-1 text-[11px] font-mono text-[#88847b]">
+                  {article.data.tags.map((tName: string) => (
+                    <a href={`/${locale}/tag/${tName}`} class="hover:text-[#1b1a18]">
+                      #{getTagDisplayName(tName, locale)}
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              <div class="hidden md:flex md:col-span-2 justify-end">
+                <a
+                  href={`/${locale}/blog/${article.data.slug}`}
+                  class="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-wider text-[#88847b] group-hover:text-[#1b1a18] group-hover:translate-x-1 transition-all"
+                >
+                  <span>Read</span>
+                  <ArrowUpRight className="h-3 w-3" />
+                </a>
+              </div>
+            </article>
           );
         })}
       </div>
-    </header>
-
-    <div>
-      {articles.length === 0 ? (
-        <div class="py-12 text-center text-[#737373] font-serif space-y-2">
-          <p>{t.noArticlesFound}</p>
-          <a href={`/${locale}/tags`} class="text-xs font-sans underline text-[#1a1a1a]">
-            {t.tagsLabel} →
-          </a>
-        </div>
-      ) : (
-        <div class="divide-y divide-[#ecebe6]">
-          {articles.map((article) => {
-            const readingMin = calculateReadingMetrics(article.body || '', locale).minutes;
-            return (
-              <article class="group py-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 hover:bg-[#faf8f2] px-4 -mx-4 rounded-sm transition-colors">
-                <div class="space-y-1">
-                  <div class="text-xs font-mono text-[#737373]">
-                    {article.data.pubDate} • {article.data.category}
-                  </div>
-                  <h2 class="font-serif text-xl font-bold text-[#1a1a1a] group-hover:underline">
-                    <a href={`/${locale}/blog/${article.data.slug}`}>
-                      {article.data.title}
-                    </a>
-                  </h2>
-                  <p class="font-serif text-sm text-[#525252] line-clamp-2">
-                    {article.data.description}
-                  </p>
-                </div>
-                <div class="text-xs font-mono text-[#a3a3a3] shrink-0">
-                  {t.readingTimeFormat(readingMin)}
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      )}
-    </div>
+    )}
   </div>
 </BaseLayout>
