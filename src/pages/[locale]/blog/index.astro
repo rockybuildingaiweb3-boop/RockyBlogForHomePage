@@ -83,7 +83,7 @@ function getCoverSrc(cover: any): string {
                   />
                 </a>
                 <div class="flex items-center justify-between text-[11px] font-semibold tracking-wider uppercase text-[#737373]">
-                  <span>{article.data.category}</span>
+                  <span>{siteConfig.categories.find((c) => c.id === article.data.category)?.name[locale] || article.data.category}</span>
                   <span class="font-mono text-[#a3a3a3]">{article.data.pubDate}</span>
                 </div>
                 <h2 class="font-serif text-xl font-bold text-[#1a1a1a] group-hover:underline leading-snug">

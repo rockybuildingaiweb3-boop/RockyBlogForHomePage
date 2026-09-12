@@ -5,16 +5,16 @@ pubDate: "2026-09-10"
 slug: "minimal-markdown-craft"
 translationId: "minimal-markdown-craft"
 lang: "zh-CN"
-category: "typography"
+category: "notes"
 tags:
   - markdown
-  - typography
-  - minimalism
+  - tools
+  - static-web
 cover: "./cover.jpg"
 coverAlt: "纯文本排版纸张与墨水文字的静物特写"
 featured: false
 draft: false
-author: "Linus Chen"
+author: "Rocky"
 links: []
 ---
 

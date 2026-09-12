@@ -1,5 +1,4 @@
 ---
-import { Rss } from 'lucide-react';
 import { siteConfig } from '../../config/site.config';
 import { localeDisplayNames, uiTranslations } from '../../i18n/translations';
 import type { SupportedLocale } from '../../types/content';
@@ -10,6 +9,12 @@ export interface Props {
 
 const { currentLocale } = Astro.props;
 const t = uiTranslations[currentLocale];
+const hasSocial = Boolean(
+  siteConfig.author.social.github ||
+  siteConfig.author.social.x ||
+  siteConfig.author.social.linkedin ||
+  siteConfig.author.social.email
+);
 ---
 
 <footer class="border-t border-[#e5e5e0] bg-[#f5f4ef] text-[#525252] transition-colors">
@@ -23,9 +28,9 @@ const t = uiTranslations[currentLocale];
         <p class="max-w-md text-sm leading-relaxed text-[#525252] font-serif">
           {siteConfig.siteDescription[currentLocale]}
         </p>
-        <div class="pt-2 text-xs font-mono text-[#737373]">
-          Static by Default • Zero Runtime DB • Open Editorial Standard
-        </div>
+        <p class="text-xs text-[#737373] leading-relaxed">
+          {siteConfig.author.bio[currentLocale]}
+        </p>
       </div>
 
       <!-- Col 2: Categories -->
@@ -47,7 +52,7 @@ const t = uiTranslations[currentLocale];
         </ul>
       </div>
 
-      <!-- Col 3: Languages & Feeds -->
+      <!-- Col 3: Languages & Social -->
       <div class="space-y-3">
         <h4 class="text-xs font-semibold tracking-widest uppercase text-[#1a1a1a]">
           {t.languageSwitcherLabel}
@@ -67,22 +72,60 @@ const t = uiTranslations[currentLocale];
           ))}
         </div>
 
-        <div class="pt-4">
-          <a
-            href={`/${currentLocale}/rss.xml`}
-            class="inline-flex items-center gap-2 text-xs text-[#737373] hover:text-[#d97706] transition-colors"
-          >
-            <Rss className="h-3.5 w-3.5" />
-            <span>{t.navRss} ({currentLocale})</span>
-          </a>
-        </div>
+        {hasSocial && (
+          <div class="pt-4 space-y-2">
+            <h5 class="text-[11px] font-semibold tracking-widest uppercase text-[#737373]">
+              Profiles
+            </h5>
+            <div class="flex flex-wrap gap-3 text-xs">
+              {siteConfig.author.social.github && (
+                <a
+                  href={siteConfig.author.social.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-[#1a1a1a] transition-colors"
+                >
+                  GitHub
+                </a>
+              )}
+              {siteConfig.author.social.x && (
+                <a
+                  href={siteConfig.author.social.x}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-[#1a1a1a] transition-colors"
+                >
+                  X
+                </a>
+              )}
+              {siteConfig.author.social.linkedin && (
+                <a
+                  href={siteConfig.author.social.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:text-[#1a1a1a] transition-colors"
+                >
+                  LinkedIn
+                </a>
+              )}
+              {siteConfig.author.social.email && (
+                <a
+                  href={siteConfig.author.social.email}
+                  class="hover:text-[#1a1a1a] transition-colors"
+                >
+                  Email
+                </a>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
 
     <!-- Bottom Colophon -->
     <div class="mt-16 border-t border-[#e5e5e0] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#737373]">
       <div>
-        © 2026 {siteConfig.author.name}. All rights reserved. Content licensed under editorial terms.
+        © 2026 {siteConfig.author.name}. All rights reserved.
       </div>
       <div class="flex items-center gap-6">
         <a

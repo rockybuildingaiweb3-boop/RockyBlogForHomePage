@@ -173,7 +173,7 @@ const jsonLd = {
         class="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-[#737373] hover:text-[#1a1a1a] transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        <span>{entry.data.category}</span>
+        <span>{siteConfig.categories.find((c) => c.id === entry.data.category)?.name[locale] || entry.data.category}</span>
       </a>
     </div>
 
@@ -196,7 +196,7 @@ const jsonLd = {
         </span>
         <span>•</span>
         <span class="uppercase tracking-wider px-2 py-0.5 bg-[#f0eee9] text-[#525252] rounded-xs text-[11px]">
-          {entry.data.category}
+          {siteConfig.categories.find((c) => c.id === entry.data.category)?.name[locale] || entry.data.category}
         </span>
       </div>
 

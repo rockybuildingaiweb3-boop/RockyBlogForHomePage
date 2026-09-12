@@ -26,7 +26,7 @@ const {
   locale,
   canonicalUrl,
   alternateHreflangs,
-  ogImage = 'https://images.unsplash.com/photo-1507842229451-7f01be837a27?auto=format&fit=crop&w=1200&q=80',
+  ogImage = `${siteConfig.siteUrl}/avatar.svg`,
   ogType = 'website',
   articleDate,
   articleModifiedDate,
@@ -40,7 +40,6 @@ const finalTitle = title ? `${title} — ${siteName}` : `${siteName} — ${siteC
 const finalDescription = description || siteConfig.siteDescription[locale];
 const finalCanonical = canonicalUrl || `${siteConfig.siteUrl}/${locale}`;
 const xDefaultUrl = alternateHreflangs?.[siteConfig.defaultLocale] || finalCanonical;
-const rssUrl = `${siteConfig.siteUrl}/${locale}/rss.xml`;
 ---
 
 <!doctype html>
@@ -97,9 +96,6 @@ const rssUrl = `${siteConfig.siteUrl}/${locale}/rss.xml`;
     <meta name="twitter:title" content={title || siteName} />
     <meta name="twitter:description" content={finalDescription} />
     {ogImage && <meta name="twitter:image" content={ogImage} />}
-
-    <!-- RSS Feed Alternate Link -->
-    <link rel="alternate" type="application/rss+xml" title={`${siteName} RSS Feed`} href={rssUrl} />
 
     <!-- Structured Data (JSON-LD) -->
     {jsonLd && (

@@ -73,7 +73,7 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
                   {year}
                 </span>
                 <span class="text-xs font-mono text-[#737373]">
-                  ({articles.length} pieces)
+                  ({articles.length} {articles.length === 1 ? 'article' : 'articles'})
                 </span>
               </div>
 
@@ -88,7 +88,7 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
                           <span>{article.data.pubDate}</span>
                           <span class="text-[#d4d4d4]">•</span>
                           <span class="uppercase text-[10px] tracking-wider font-sans text-[#525252]">
-                            {article.data.category}
+                            {siteConfig.categories.find((c) => c.id === article.data.category)?.name[locale] || article.data.category}
                           </span>
                         </div>
                         <h2 class="font-serif text-lg sm:text-xl font-bold text-[#1a1a1a] group-hover:underline">

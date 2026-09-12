@@ -1,6 +1,6 @@
 {
-  "name": "个人观点与技术博客",
-  "description": "以文字、图片、排版和个人观点为核心的五语言个人数字出版物与静态博客",
+  "name": "个人技术博客与系统设计",
+  "description": "面向 IT 从业者的个人技术博客与长期知识积累系统，涵盖软件工程、AI 与 Agent 实践、前端技术、架构与技术笔记。",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

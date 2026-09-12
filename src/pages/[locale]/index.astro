@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { ArrowRight, BookOpen, Sparkles } from 'lucide-react';
+import { ArrowRight, Terminal } from 'lucide-react';
 import { siteConfig } from '../../config/site.config';
 import { getTagDisplayName } from '../../config/tags';
 import {
@@ -55,19 +55,32 @@ function getCoverSrc(cover: any): string {
   translationLinks={translationLinks}
 >
   <div class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 space-y-24 py-8 sm:py-12">
-    <!-- 1. Publication Hero Masthead -->
+    <!-- 1. Technical Hero Masthead -->
     <section class="border-b border-[#e5e5e0] pb-16">
       <div class="max-w-4xl space-y-6">
-        <div class="inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-[#737373]">
-          <Sparkles className="h-3.5 w-3.5 text-[#d97706]" />
-          <span>Independent Digital Periodical</span>
+        <div class="inline-flex items-center gap-2 text-xs font-mono font-medium tracking-wider uppercase text-[#737373]">
+          <span class="inline-block h-2 w-2 rounded-full bg-[#16a34a]"></span>
+          <span>Personal Technical Blog & Long-Term Knowledge System</span>
         </div>
         <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-[#1a1a1a] leading-[1.08]">
           {siteConfig.siteName[locale]}
         </h1>
-        <p class="font-serif text-xl sm:text-2xl text-[#525252] leading-relaxed max-w-2xl">
+        <p class="font-serif text-xl sm:text-2xl text-[#525252] leading-relaxed max-w-3xl">
           {siteConfig.siteDescription[locale]}
         </p>
+
+        <!-- Focus areas pills -->
+        <div class="pt-2 flex flex-wrap items-center gap-2">
+          <span class="text-xs font-mono text-[#737373] mr-1">Focus Areas:</span>
+          {siteConfig.categories.map((cat) => (
+            <a
+              href={`/${locale}/category/${cat.id}`}
+              class="inline-flex items-center text-xs font-mono bg-[#f0eee6] hover:bg-[#e4e1d7] text-[#404040] hover:text-[#1a1a1a] px-3 py-1 rounded-sm border border-[#e5e3dc] transition-colors"
+            >
+              {cat.name[locale]}
+            </a>
+          ))}
+        </div>
       </div>
     </section>
 
@@ -221,11 +234,11 @@ function getCoverSrc(cover: any): string {
           {t.categoriesTitle}
         </h2>
         <p class="text-xs text-[#737373] mt-1 font-sans">
-          Subject and thematic index across publications
+          Software engineering, artificial intelligence, frontend craft, design systems, and technical retrospectives
         </p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         {siteConfig.categories.map((cat) => {
           const count = getArticlesByCategory(allPosts, locale, cat.id).length;
           return (
@@ -248,14 +261,16 @@ function getCoverSrc(cover: any): string {
       </div>
     </section>
 
-    <!-- 5. Editorial Philosophy Colophon -->
+    <!-- 5. Engineering Author Statement -->
     <section class="text-center py-12 border-t border-[#e5e5e0] space-y-4">
-      <BookOpen className="h-6 w-6 text-[#737373] mx-auto" />
+      <div class="flex items-center justify-center">
+        <Terminal className="h-6 w-6 text-[#737373]" />
+      </div>
       <h3 class="font-serif text-xl font-bold text-[#1a1a1a]">
         {siteConfig.author.name}
       </h3>
-      <p class="font-serif text-sm max-w-xl mx-auto text-[#525252] leading-relaxed italic">
-        "{siteConfig.author.bio[locale]}"
+      <p class="text-sm max-w-xl mx-auto text-[#525252] leading-relaxed">
+        {siteConfig.author.bio[locale]}
       </p>
       <div class="pt-2">
         <a

@@ -9,6 +9,9 @@ const siteUrl = (process.env.PUBLIC_SITE_URL || process.env.SITE_URL || 'https:/
 export default defineConfig({
   site: siteUrl,
   output: 'static',
+  devToolbar: {
+    enabled: false,
+  },
   vite: {
     plugins: [tailwindcss()],
   },

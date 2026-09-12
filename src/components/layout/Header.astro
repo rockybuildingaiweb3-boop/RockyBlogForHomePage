@@ -1,5 +1,5 @@
 ---
-import { Globe, Menu, Rss } from 'lucide-react';
+import { Globe, Menu } from 'lucide-react';
 import { siteConfig } from '../../config/site.config';
 import { localeDisplayNames, uiTranslations } from '../../i18n/translations';
 import type { SupportedLocale } from '../../types/content';
@@ -44,7 +44,7 @@ const activeTranslationLinks = translationLinks || fallbackLinks;
           {siteConfig.siteName[currentLocale]}
         </span>
         <span class="block text-[10px] tracking-[0.2em] uppercase text-[#737373] font-sans">
-          Editorial Publication
+          Software & Systems Engineering
         </span>
       </a>
     </div>
@@ -94,15 +94,6 @@ const activeTranslationLinks = translationLinks || fallbackLinks;
           );
         })}
       </div>
-
-      <a
-        href={`/${currentLocale}/rss.xml`}
-        id="rss-link-header"
-        title="RSS Feed"
-        class="inline-flex items-center gap-1 p-2 text-[#737373] hover:text-[#1a1a1a] transition-colors rounded-sm hover:bg-[#f0eee9]"
-      >
-        <Rss className="h-4 w-4" />
-      </a>
     </div>
 
     <!-- Mobile Menu Button -->

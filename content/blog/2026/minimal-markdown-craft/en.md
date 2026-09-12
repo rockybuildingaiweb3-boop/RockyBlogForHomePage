@@ -5,16 +5,16 @@ pubDate: "2026-09-10"
 slug: "minimal-markdown-craft-en"
 translationId: "minimal-markdown-craft"
 lang: "en"
-category: "typography"
+category: "notes"
 tags:
   - markdown
-  - typography
-  - minimalism
+  - tools
+  - static-web
 cover: "./cover.jpg"
 coverAlt: "Stationery notebook and clean black ink calligraphy"
 featured: false
 draft: false
-author: "Linus Chen"
+author: "Rocky"
 links: []
 ---
 
