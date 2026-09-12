@@ -50,6 +50,10 @@
     "cover": {
       "type": "string"
     },
+    "coverAlt": {
+      "type": "string",
+      "minLength": 1
+    },
     "featured": {
       "default": false,
       "type": "boolean"
@@ -70,10 +74,12 @@
         "type": "object",
         "properties": {
           "platform": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "url": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^https?:\\/\\/"
           },
           "type": {
             "type": "string",

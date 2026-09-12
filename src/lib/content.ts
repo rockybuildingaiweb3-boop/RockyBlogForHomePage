@@ -212,29 +212,133 @@ export function getArchiveByYear(
 }
 
 /**
- * Validate content integrity across all entries at build time:
- * - No duplicate (lang, slug)
- * - No duplicate (translationId, lang)
+ * Check if a date string is a valid calendar date in YYYY-MM-DD format (avoids 2026-99-99 etc.)
+ */
+function isValidCalendarDate(dateStr: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false;
+  const [y, m, d] = dateStr.split('-').map(Number);
+  if (m < 1 || m > 12 || d < 1 || d > 31) return false;
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return (
+    date.getUTCFullYear() === y &&
+    date.getUTCMonth() === m - 1 &&
+    date.getUTCDate() === d
+  );
+}
+
+/**
+ * Check if a URL string is a valid absolute http(s) URL
+ */
+function isValidAbsoluteUrl(urlString: string): boolean {
+  try {
+    const parsed = new URL(urlString);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Validate content integrity across all entries at build time per Section 14:
+ * 1. Duplicate (lang, slug)
+ * 2. Duplicate (translationId, lang)
+ * 3. Valid locale (zh-CN, en, fr, de, ja)
+ * 4. Slug format (lowercase a-z, 0-9, hyphen)
+ * 5. Real calendar date for pubDate
+ * 6. Real calendar date for updatedDate and updatedDate >= pubDate
+ * 7. Valid absolute URL for canonicalUrl if provided
+ * 8. Valid external links (platform, url, type)
  */
 export function validateContentIntegrity(entries: BlogPost[]): void {
   const seenLangSlug = new Set<string>();
   const seenTranslationLang = new Set<string>();
+  const validLocales = new Set(['zh-CN', 'en', 'fr', 'de', 'ja']);
+  const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
   for (const entry of entries) {
-    const langSlugKey = `${entry.data.lang}:${entry.data.slug.toLowerCase()}`;
+    const { lang, slug, translationId, pubDate, updatedDate, canonicalUrl, links } = entry.data;
+
+    // 1. Valid locale
+    if (!validLocales.has(lang)) {
+      throw new Error(
+        `[Content Integrity Error] Invalid locale "${lang}" in entry "${entry.id}". Must be one of: zh-CN, en, fr, de, ja`
+      );
+    }
+
+    // 2. Slug format
+    if (!slugRegex.test(slug)) {
+      throw new Error(
+        `[Content Integrity Error] Invalid slug format "${slug}" in entry "${entry.id}". Slugs must be lowercase alphanumeric and hyphens only (e.g. "my-first-post").`
+      );
+    }
+
+    // 3. Duplicate (lang, slug)
+    const langSlugKey = `${lang}:${slug}`;
     if (seenLangSlug.has(langSlugKey)) {
       throw new Error(
-        `[Content Integrity Error] Duplicate slug for language "${entry.data.lang}": "${entry.data.slug}"`
+        `[Content Integrity Error] Duplicate slug for language "${lang}": "${slug}" in entry "${entry.id}"`
       );
     }
     seenLangSlug.add(langSlugKey);
 
-    const transLangKey = `${entry.data.translationId}:${entry.data.lang}`;
+    // 4. Duplicate (translationId, lang)
+    const transLangKey = `${translationId}:${lang}`;
     if (seenTranslationLang.has(transLangKey)) {
       throw new Error(
-        `[Content Integrity Error] Duplicate translationId for language "${entry.data.lang}": "${entry.data.translationId}"`
+        `[Content Integrity Error] Duplicate translationId "${translationId}" for language "${lang}" in entry "${entry.id}"`
       );
     }
     seenTranslationLang.add(transLangKey);
+
+    // 5. Calendar date validity for pubDate
+    if (!isValidCalendarDate(pubDate)) {
+      throw new Error(
+        `[Content Integrity Error] Invalid pubDate "${pubDate}" in entry "${entry.id}". Must be a valid calendar date in YYYY-MM-DD format.`
+      );
+    }
+
+    // 6. Calendar date validity for updatedDate and chronological constraint
+    if (updatedDate) {
+      if (!isValidCalendarDate(updatedDate)) {
+        throw new Error(
+          `[Content Integrity Error] Invalid updatedDate "${updatedDate}" in entry "${entry.id}". Must be a valid calendar date in YYYY-MM-DD format.`
+        );
+      }
+      if (updatedDate < pubDate) {
+        throw new Error(
+          `[Content Integrity Error] updatedDate ("${updatedDate}") cannot precede pubDate ("${pubDate}") in entry "${entry.id}".`
+        );
+      }
+    }
+
+    // 7. Canonical URL validity
+    if (canonicalUrl && canonicalUrl.trim().length > 0) {
+      if (!isValidAbsoluteUrl(canonicalUrl.trim())) {
+        throw new Error(
+          `[Content Integrity Error] Invalid canonicalUrl "${canonicalUrl}" in entry "${entry.id}". Must be a valid absolute URL with http: or https: scheme.`
+        );
+      }
+    }
+
+    // 8. External links validation
+    if (links && Array.isArray(links)) {
+      for (const link of links) {
+        if (!link.platform || link.platform.trim().length === 0) {
+          throw new Error(
+            `[Content Integrity Error] External link missing platform in entry "${entry.id}".`
+          );
+        }
+        if (!isValidAbsoluteUrl(link.url)) {
+          throw new Error(
+            `[Content Integrity Error] Invalid external link URL "${link.url}" in entry "${entry.id}".`
+          );
+        }
+        if (!['announcement', 'full-post', 'adapted'].includes(link.type)) {
+          throw new Error(
+            `[Content Integrity Error] Invalid link type "${link.type}" in entry "${entry.id}".`
+          );
+        }
+      }
+    }
   }
 }

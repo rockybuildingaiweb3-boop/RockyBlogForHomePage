@@ -39,7 +39,7 @@ const siteName = siteConfig.siteName[locale];
 const finalTitle = title ? `${title} — ${siteName}` : `${siteName} — ${siteConfig.siteDescription[locale]}`;
 const finalDescription = description || siteConfig.siteDescription[locale];
 const finalCanonical = canonicalUrl || `${siteConfig.siteUrl}/${locale}`;
-const xDefaultUrl = alternateHreflangs?.[siteConfig.defaultLocale] || `${siteConfig.siteUrl}/${siteConfig.defaultLocale}`;
+const xDefaultUrl = alternateHreflangs?.[siteConfig.defaultLocale] || finalCanonical;
 const rssUrl = `${siteConfig.siteUrl}/${locale}/rss.xml`;
 ---
 

@@ -1,0 +1,112 @@
+---
+import { List } from 'lucide-react';
+import type { TocItem } from '../../types/content';
+
+export interface Props {
+  items: TocItem[];
+  titleLabel: string;
+}
+
+const { items, titleLabel } = Astro.props;
+---
+
+{items.length > 0 && (
+  <nav id="table-of-contents" class="rounded-sm border border-[#e5e5e0] bg-[#faf9f6] p-5 text-sm" aria-label={titleLabel}>
+    <div class="flex items-center gap-2 pb-3 mb-3 border-b border-[#e5e5e0] text-xs font-semibold tracking-wider uppercase text-[#1a1a1a]">
+      <List className="h-3.5 w-3.5" />
+      <span>{titleLabel}</span>
+    </div>
+    <ul class="space-y-2 font-sans text-xs">
+      {items.map((item) => {
+        const indent = item.depth === 3 ? 'pl-4' : item.depth === 4 ? 'pl-7' : 'pl-0';
+        return (
+          <li class={indent}>
+            <a
+              href={`#${item.id}`}
+              data-toc-id={item.id}
+              class="toc-link block w-full text-left transition-colors leading-relaxed text-[#737373] hover:text-[#262626]"
+            >
+              {item.text}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+)}
+
+<script is:inline>
+  (() => {
+    const toc = document.getElementById('table-of-contents');
+    if (!toc) return;
+
+    const links = Array.from(toc.querySelectorAll('.toc-link'));
+    if (links.length === 0) return;
+
+    const headingMap = new Map();
+    links.forEach((link) => {
+      const id = link.getAttribute('data-toc-id');
+      if (id) {
+        const heading = document.getElementById(id);
+        if (heading) {
+          headingMap.set(heading, link);
+        }
+      }
+    });
+
+    const activeClasses = ['font-medium', 'text-[#1a1a1a]', 'underline', 'underline-offset-4', 'decoration-1', 'decoration-[#1a1a1a]'];
+    const inactiveClasses = ['text-[#737373]'];
+
+    function setActive(activeLink) {
+      links.forEach((link) => {
+        if (link === activeLink) {
+          link.classList.remove(...inactiveClasses);
+          link.classList.add(...activeClasses);
+        } else {
+          link.classList.remove(...activeClasses);
+          link.classList.add(...inactiveClasses);
+        }
+      });
+    }
+
+    // Initialize first link as active if no hash
+    if (!window.location.hash && links.length > 0) {
+      setActive(links[0]);
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const link = headingMap.get(entry.target);
+            if (link) {
+              setActive(link);
+              break;
+            }
+          }
+        }
+      },
+      { rootMargin: '-80px 0px -60% 0px' }
+    );
+
+    headingMap.forEach((_, heading) => {
+      observer.observe(heading);
+    });
+
+    // Smooth scroll on click
+    links.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        const id = link.getAttribute('data-toc-id');
+        if (id) {
+          const target = document.getElementById(id);
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth' });
+            window.history.replaceState(null, '', '#' + id);
+            setActive(link);
+          }
+        }
+      });
+    });
+  })();
+</script>

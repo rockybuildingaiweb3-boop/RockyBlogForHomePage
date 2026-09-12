@@ -11,6 +11,7 @@ tags:
   - typography
   - minimalism
 cover: "./cover.jpg"
+coverAlt: "Stationery notebook and clean black ink calligraphy"
 featured: false
 draft: false
 author: "Linus Chen"

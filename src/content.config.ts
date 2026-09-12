@@ -16,6 +16,7 @@ const blog = defineCollection({
       category: z.string().min(1),
       tags: z.array(z.string()).min(1),
       cover: image(),
+      coverAlt: z.string().min(1).optional(),
       featured: z.boolean().default(false),
       draft: z.boolean().default(false),
       author: z.string().optional(),
@@ -23,8 +24,8 @@ const blog = defineCollection({
       links: z
         .array(
           z.object({
-            platform: z.string(),
-            url: z.string(),
+            platform: z.string().min(1),
+            url: z.string().regex(/^https?:\/\//, 'Must be a valid HTTP or HTTPS URL'),
             type: z.enum(['announcement', 'full-post', 'adapted']),
           })
         )

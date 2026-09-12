@@ -28,6 +28,7 @@ export interface ArticleFrontmatter {
   category: string;
   tags: string[];
   cover: string;
+  coverAlt?: string;
   featured: boolean;
   draft: boolean;
 

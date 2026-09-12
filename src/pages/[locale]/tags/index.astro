@@ -1,0 +1,105 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { siteConfig } from '../../../config/site.config';
+import { getTagDisplayName, tagsConfig } from '../../../config/tags';
+import { getArticlesByLocale } from '../../../lib/content';
+import { uiTranslations } from '../../../i18n/translations';
+import type { SupportedLocale } from '../../../types/content';
+
+export function getStaticPaths() {
+  return siteConfig.supportedLocales.map((locale) => ({
+    params: { locale },
+  }));
+}
+
+const { locale } = Astro.params as { locale: SupportedLocale };
+const t = uiTranslations[locale];
+
+const allPosts = await getCollection('blog');
+const publishedArticles = getArticlesByLocale(allPosts, locale, false);
+
+// Aggregate tag occurrences in published articles for this locale
+const tagCountMap = new Map<string, number>();
+for (const a of publishedArticles) {
+  for (const tag of a.data.tags) {
+    const key = tag.toLowerCase().trim();
+    tagCountMap.set(key, (tagCountMap.get(key) || 0) + 1);
+  }
+}
+
+// Ensure all predefined tags are listed even if 0 in this locale
+const allKnownTagIds = Array.from(
+  new Set([...Object.keys(tagsConfig), ...Array.from(tagCountMap.keys())])
+);
+
+const sortedTags = allKnownTagIds.map((tagId) => ({
+  id: tagId,
+  displayName: getTagDisplayName(tagId, locale),
+  description: tagsConfig[tagId]?.description?.[locale],
+  count: tagCountMap.get(tagId) || 0,
+})).sort((a, b) => b.count - a.count || a.displayName.localeCompare(b.displayName));
+
+const canonicalUrl = `${siteConfig.siteUrl}/${locale}/tags`;
+
+const alternateHreflangs = Object.fromEntries(
+  siteConfig.supportedLocales.map((loc) => [loc, `${siteConfig.siteUrl}/${loc}/tags`])
+) as Record<SupportedLocale, string>;
+
+const translationLinks = Object.fromEntries(
+  siteConfig.supportedLocales.map((loc) => [loc, { url: `/${loc}/tags`, available: true }])
+) as Record<SupportedLocale, { url: string; available: boolean }>;
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${t.tagsLabel} — ${siteConfig.siteName[locale]}`}
+  description={`${t.tagsLabel} — ${siteConfig.siteDescription[locale]}`}
+  canonicalUrl={canonicalUrl}
+  alternateHreflangs={alternateHreflangs}
+  translationLinks={translationLinks}
+>
+  <div class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 py-10 sm:py-16 space-y-12">
+    <header class="border-b border-[#e5e5e0] pb-8 space-y-3">
+      <div class="text-xs uppercase font-semibold tracking-widest text-[#737373]">
+        {siteConfig.siteName[locale]}
+      </div>
+      <h1 class="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-[#1a1a1a]">
+        {t.tagsLabel}
+      </h1>
+      <p class="font-serif text-base text-[#525252] max-w-2xl">
+        {locale === 'zh-CN' && '按主题与概念索引所有已发布的深度思考与技术手记。'}
+        {locale === 'en' && 'Index of all published technical notes and essays organized by topics.'}
+        {locale === 'fr' && 'Index thématique de tous les essais et notes d’ingénierie publiés.'}
+        {locale === 'de' && 'Thematischer Index aller veröffentlichten Essays und technischen Notizen.'}
+        {locale === 'ja' && '公開されたすべての思索と技術手記をトピック別に分類した索引。'}
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {sortedTags.map((tag) => (
+        <a
+          href={`/${locale}/tag/${encodeURIComponent(tag.id)}`}
+          class="group block p-6 rounded-sm border border-[#e5e5e0] bg-[#faf9f6] hover:bg-[#faf8f2] hover:border-[#d4d2cb] transition-all"
+        >
+          <div class="flex items-baseline justify-between mb-2">
+            <h2 class="font-serif text-xl font-bold text-[#1a1a1a] group-hover:underline">
+              #{tag.displayName}
+            </h2>
+            <span class="text-xs font-mono text-[#737373] bg-[#f0eee9] px-2 py-0.5 rounded-xs">
+              {tag.count} {tag.count === 1 ? 'article' : 'articles'}
+            </span>
+          </div>
+          <div class="text-xs font-mono text-[#a3a3a3] mb-3">
+            id: {tag.id}
+          </div>
+          {tag.description && (
+            <p class="font-serif text-xs text-[#525252] line-clamp-2 leading-relaxed">
+              {tag.description}
+            </p>
+          )}
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

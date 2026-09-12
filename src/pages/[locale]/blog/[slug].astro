@@ -4,11 +4,12 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { ArrowLeft, Calendar, Clock, Globe } from 'lucide-react';
 import { Figure } from '../../../components/mdx/Figure';
 import { Note } from '../../../components/mdx/Note';
-import { TableOfContents } from '../../../components/article/TableOfContents';
+import TableOfContents from '../../../components/article/TableOfContents.astro';
 import { AlsoPublishedOn } from '../../../components/article/AlsoPublishedOn';
 import { PreviousNext } from '../../../components/article/PreviousNext';
 import { RelatedArticles } from '../../../components/article/RelatedArticles';
 import { siteConfig } from '../../../config/site.config';
+import { getTagDisplayName } from '../../../config/tags';
 import {
   getTranslationsForArticle,
   getRelatedArticles,
@@ -83,6 +84,7 @@ const tocItems: TocItem[] = headings
   }));
 
 // Precompute alternate hreflangs and translation navigation links
+// Strictly Section 5.1 & 5.2: Only emit hreflang for languages where a translation truly exists!
 const alternateHreflangs: Record<string, string> = {};
 const translationLinks: Record<SupportedLocale, { url: string; available: boolean }> = {
   'zh-CN': { url: '/zh-CN/blog', available: false },
@@ -104,8 +106,22 @@ for (const loc of siteConfig.supportedLocales) {
   }
 }
 
-const canonicalUrl = `${siteConfig.siteUrl}/${locale}/blog/${entry.data.slug}`;
+// Canonical URL resolution per Section 4.1:
+// If canonicalUrl is explicitly provided (e.g. cross-posted from another authoritative source), preserve it.
+// Otherwise, default to this article's own absolute URL.
+const canonicalUrl =
+  entry.data.canonicalUrl && entry.data.canonicalUrl.trim().length > 0
+    ? entry.data.canonicalUrl.trim()
+    : `${siteConfig.siteUrl}/${locale}/blog/${entry.data.slug}`;
+
 const coverSrc = typeof entry.data.cover === 'string' ? entry.data.cover : (entry.data.cover as any)?.src;
+const coverAbsoluteUrl = coverSrc
+  ? coverSrc.startsWith('http://') || coverSrc.startsWith('https://')
+    ? coverSrc
+    : `${siteConfig.siteUrl}${coverSrc.startsWith('/') ? '' : '/'}${coverSrc}`
+  : undefined;
+
+const coverAltText = entry.data.coverAlt || entry.data.title;
 
 // JSON-LD Schema.org BlogPosting metadata
 const jsonLd = {
@@ -131,7 +147,7 @@ const jsonLd = {
     '@type': 'WebPage',
     '@id': canonicalUrl,
   },
-  image: coverSrc,
+  ...(coverAbsoluteUrl ? { image: coverAbsoluteUrl } : {}),
 };
 ---
 
@@ -140,53 +156,47 @@ const jsonLd = {
   title={entry.data.title}
   description={entry.data.description}
   canonicalUrl={canonicalUrl}
-  alternateHreflangs={alternateHreflangs as Record<SupportedLocale, string>}
+  alternateHreflangs={alternateHreflangs}
+  ogImage={coverAbsoluteUrl}
   ogType="article"
-  ogImage={coverSrc}
   articleDate={entry.data.pubDate}
-  articleModifiedDate={entry.data.updatedDate}
+  articleModifiedDate={entry.data.updatedDate || entry.data.pubDate}
   authorName={entry.data.author || siteConfig.author.name}
   jsonLd={jsonLd}
   translationLinks={translationLinks}
 >
   <article class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 py-8 sm:py-12">
-    <!-- Back to blog link -->
+    <!-- Back to Category / Blog Navigation Link -->
     <div class="mb-8">
       <a
-        href={`/${locale}/blog`}
-        class="inline-flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-[#737373] hover:text-[#1a1a1a] transition-colors"
+        href={`/${locale}/category/${entry.data.category}`}
+        class="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-widest text-[#737373] hover:text-[#1a1a1a] transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        <span>{t.backToBlog}</span>
+        <span>{entry.data.category}</span>
       </a>
     </div>
 
     <!-- Article Header -->
-    <header class="max-w-4xl space-y-6 mb-12">
-      <div class="flex flex-wrap items-center gap-3 text-xs">
-        <a
-          href={`/${locale}/category/${entry.data.category}`}
-          class="font-semibold tracking-widest uppercase text-[#737373] hover:text-[#1a1a1a] transition-colors"
-        >
-          {entry.data.category}
-        </a>
-        <span class="text-[#d4d4d4]">•</span>
-        <span class="flex items-center gap-1 text-[#737373] font-mono">
-          <Calendar className="h-3 w-3" />
-          {entry.data.pubDate}
-        </span>
-        {entry.data.updatedDate && (
-          <>
-            <span class="text-[#d4d4d4]">•</span>
-            <span class="text-[11px] text-[#a3a3a3] font-mono">
-              {t.updatedOn}: {entry.data.updatedDate}
+    <header class="max-w-4xl space-y-6">
+      <div class="flex flex-wrap items-center gap-4 text-xs font-mono text-[#737373]">
+        <span class="flex items-center gap-1.5">
+          <Calendar className="h-3.5 w-3.5" />
+          <time datetime={entry.data.pubDate}>{entry.data.pubDate}</time>
+          {entry.data.updatedDate && (
+            <span class="text-[11px] text-[#a3a3a3]" title="Last updated">
+              (rev: {entry.data.updatedDate})
             </span>
-          </>
-        )}
-        <span class="text-[#d4d4d4]">•</span>
-        <span class="flex items-center gap-1 text-[#737373] font-mono">
-          <Clock className="h-3 w-3" />
-          {t.readingTimeFormat(readingMin)}
+          )}
+        </span>
+        <span>•</span>
+        <span class="flex items-center gap-1.5">
+          <Clock className="h-3.5 w-3.5" />
+          <span>{t.readingTimeFormat(readingMin)}</span>
+        </span>
+        <span>•</span>
+        <span class="uppercase tracking-wider px-2 py-0.5 bg-[#f0eee9] text-[#525252] rounded-xs text-[11px]">
+          {entry.data.category}
         </span>
       </div>
 
@@ -240,12 +250,15 @@ const jsonLd = {
       </div>
     </header>
 
-    <!-- Hero Cover Image -->
+    <!-- Hero Cover Image (LCP optimized with eager loading & high priority) -->
     {coverSrc && (
       <div class="my-12 -mx-4 sm:-mx-8 lg:-mx-12 overflow-hidden rounded-sm bg-[#e8e6e1] aspect-[16/9] max-h-[680px]">
         <img
           src={coverSrc}
-          alt={entry.data.title}
+          alt={coverAltText}
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
           class="h-full w-full object-cover"
         />
       </div>
@@ -268,7 +281,7 @@ const jsonLd = {
               href={`/${locale}/tag/${tag}`}
               class="text-xs font-mono text-[#525252] bg-[#f5f4ef] hover:bg-[#e8e6e1] px-3 py-1 rounded-sm transition-colors"
             >
-              #{tag}
+              #{getTagDisplayName(tag, locale)}
             </a>
           ))}
         </div>
@@ -279,6 +292,8 @@ const jsonLd = {
             <img
               src={siteConfig.author.avatar}
               alt={siteConfig.author.name}
+              loading="lazy"
+              decoding="async"
               class="h-full w-full object-cover"
             />
           </div>
@@ -314,11 +329,10 @@ const jsonLd = {
         )}
       </main>
 
-      <!-- Sticky Table of Contents Sidebar -->
+      <!-- Sticky Table of Contents Sidebar (Pure static Astro component, 0 React Hydration) -->
       {tocItems.length > 0 && (
         <aside class="hidden lg:block lg:col-span-4 sticky top-24">
           <TableOfContents
-            client:idle
             items={tocItems}
             titleLabel={t.tableOfContents}
           />

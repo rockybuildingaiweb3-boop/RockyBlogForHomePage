@@ -4,8 +4,10 @@ import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
+const siteUrl = (process.env.PUBLIC_SITE_URL || process.env.SITE_URL || 'https://rockychen.me').replace(/\/+$/, '');
+
 export default defineConfig({
-  site: 'https://ais-pre-76p4kg4ws6q3eqkvf2odho-402194193469.us-west2.run.app',
+  site: siteUrl,
   output: 'static',
   vite: {
     plugins: [tailwindcss()],

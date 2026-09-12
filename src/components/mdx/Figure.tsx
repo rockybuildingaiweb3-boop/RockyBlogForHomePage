@@ -1,7 +1,14 @@
 import React from 'react';
 
+export interface ImageMetadataLike {
+  src: string;
+  width?: number;
+  height?: number;
+  format?: string;
+}
+
 export interface FigureProps {
-  src: string | { src: string };
+  src: string | ImageMetadataLike;
   alt: string;
   caption?: string;
   layout?: 'standard' | 'wide' | 'full';
@@ -17,7 +24,11 @@ export const Figure: React.FC<FigureProps> = ({
   aspectRatio = '16/9',
   credit,
 }) => {
-  const imageSrc = typeof src === 'string' ? src : (src as any)?.src || '';
+  const isObj = typeof src === 'object' && src !== null;
+  const imageSrc = isObj ? src.src : src;
+  const imageWidth = isObj ? src.width : undefined;
+  const imageHeight = isObj ? src.height : undefined;
+
   const layoutClasses = {
     standard: 'my-10 max-w-3xl mx-auto',
     wide: 'my-14 -mx-4 sm:-mx-8 md:-mx-16 lg:-mx-24 max-w-5xl mx-auto',
@@ -38,6 +49,8 @@ export const Figure: React.FC<FigureProps> = ({
         <img
           src={imageSrc}
           alt={alt}
+          width={imageWidth}
+          height={imageHeight}
           loading="lazy"
           decoding="async"
           referrerPolicy="no-referrer"
@@ -47,7 +60,7 @@ export const Figure: React.FC<FigureProps> = ({
       {(caption || credit) && (
         <figcaption className="mt-3 flex flex-wrap items-baseline justify-between gap-2 px-1 text-xs text-[#737373]">
           {caption && <span className="font-serif italic text-[#525252]">{caption}</span>}
-          {credit && <span className="text-[11px] tracking-wider uppercase text-[#a3a3a3]">Foto: {credit}</span>}
+          {credit && <span className="text-[11px] tracking-wider uppercase text-[#a3a3a3]">Photo: {credit}</span>}
         </figcaption>
       )}
     </figure>

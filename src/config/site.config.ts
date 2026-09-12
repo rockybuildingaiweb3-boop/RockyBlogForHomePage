@@ -20,6 +20,10 @@ export interface SiteConfig {
   categories: CategoryDefinition[];
 }
 
+// Canonical production site URL source of truth
+const envSiteUrl = typeof process !== 'undefined' ? (process.env.PUBLIC_SITE_URL || process.env.SITE_URL) : undefined;
+export const PRODUCTION_SITE_URL = (envSiteUrl || 'https://rockychen.me').replace(/\/+$/, '');
+
 export const siteConfig: SiteConfig = {
   siteName: {
     'zh-CN': '沉思录与技术手记',
@@ -35,7 +39,7 @@ export const siteConfig: SiteConfig = {
     'de': 'Eine unabhängige digitale Publikation über persönliche Essays, Technikphilosophie und visuelle Erzählung.',
     'ja': '個人の見解、技術哲学、視覚的叙事詩、そして長期主義に捧げる独立したデジタル出版物。',
   },
-  siteUrl: 'https://ais-pre-76p4kg4ws6q3eqkvf2odho-402194193469.us-west2.run.app',
+  siteUrl: PRODUCTION_SITE_URL,
   defaultLocale: 'zh-CN',
   supportedLocales: ['zh-CN', 'en', 'fr', 'de', 'ja'],
   author: {

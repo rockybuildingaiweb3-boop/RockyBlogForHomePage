@@ -11,6 +11,7 @@ tags:
   - typography
   - minimalism
 cover: "./cover.jpg"
+coverAlt: "纯文本排版纸张与墨水文字的静物特写"
 featured: false
 draft: false
 author: "Linus Chen"

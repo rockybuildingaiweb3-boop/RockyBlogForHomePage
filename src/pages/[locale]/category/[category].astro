@@ -112,8 +112,9 @@ function getCoverSrc(cover: any): string {
                 >
                   <img
                     src={getCoverSrc(article.data.cover)}
-                    alt={article.data.title}
+                    alt={article.data.coverAlt || article.data.title}
                     loading="lazy"
+                    decoding="async"
                     class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </a>

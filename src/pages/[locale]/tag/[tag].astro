@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { siteConfig } from '../../../config/site.config';
+import { getTagDisplayName, tagsConfig } from '../../../config/tags';
 import { getArticlesByTag, getArticlesByLocale } from '../../../lib/content';
 import { calculateReadingMetrics } from '../../../lib/readingTime';
 import { uiTranslations } from '../../../i18n/translations';
@@ -10,17 +11,18 @@ import type { SupportedLocale } from '../../../types/content';
 export async function getStaticPaths() {
   const allPosts = await getCollection('blog');
   const published = allPosts.filter((e) => !e.data.draft);
-  const paths: { params: { locale: SupportedLocale; tag: string } }[] = [];
 
-  for (const locale of siteConfig.supportedLocales) {
-    const localePosts = published.filter((e) => e.data.lang === locale);
-    const tags = new Set<string>();
-    for (const a of localePosts) {
-      for (const t of a.data.tags) {
-        tags.add(t);
-      }
+  // Collect all unique tags across all published articles plus predefined tags
+  const globalTags = new Set<string>(Object.keys(tagsConfig));
+  for (const post of published) {
+    for (const tag of post.data.tags) {
+      globalTags.add(tag.toLowerCase().trim());
     }
-    for (const tag of tags) {
+  }
+
+  const paths: { params: { locale: SupportedLocale; tag: string } }[] = [];
+  for (const locale of siteConfig.supportedLocales) {
+    for (const tag of globalTags) {
       paths.push({
         params: { locale, tag },
       });
@@ -33,58 +35,56 @@ const { locale, tag } = Astro.params as { locale: SupportedLocale; tag: string }
 const t = uiTranslations[locale];
 
 const allPosts = await getCollection('blog');
-const articles = getArticlesByTag(allPosts, locale, tag);
+const normalizedTagId = tag.toLowerCase().trim();
+const articles = getArticlesByTag(allPosts, locale, normalizedTagId);
 const allArticles = getArticlesByLocale(allPosts, locale, false);
 
 // Compute tag counts for cloud
 const tagCounts = new Map<string, number>();
 for (const a of allArticles) {
   for (const tItem of a.data.tags) {
-    tagCounts.set(tItem, (tagCounts.get(tItem) || 0) + 1);
+    const key = tItem.toLowerCase().trim();
+    tagCounts.set(key, (tagCounts.get(key) || 0) + 1);
   }
 }
 const sortedTags = Array.from(tagCounts.entries()).sort((a, b) => b[1] - a[1]);
 
-const canonicalUrl = `${siteConfig.siteUrl}/${locale}/tag/${tag}`;
+const displayName = getTagDisplayName(normalizedTagId, locale);
+const canonicalUrl = `${siteConfig.siteUrl}/${locale}/tag/${normalizedTagId}`;
 
-const alternateHreflangs: Record<SupportedLocale, string> = {
-  'zh-CN': `${siteConfig.siteUrl}/zh-CN/tag/${tag}`,
-  'en': `${siteConfig.siteUrl}/en/tag/${tag}`,
-  'fr': `${siteConfig.siteUrl}/fr/tag/${tag}`,
-  'de': `${siteConfig.siteUrl}/de/tag/${tag}`,
-  'ja': `${siteConfig.siteUrl}/ja/tag/${tag}`,
-};
+const alternateHreflangs = Object.fromEntries(
+  siteConfig.supportedLocales.map((loc) => [loc, `${siteConfig.siteUrl}/${loc}/tag/${normalizedTagId}`])
+) as Record<SupportedLocale, string>;
 
-const translationLinks: Record<SupportedLocale, { url: string; available: boolean }> = {
-  'zh-CN': { url: `/zh-CN/tag/${tag}`, available: true },
-  'en': { url: `/en/tag/${tag}`, available: true },
-  'fr': { url: `/fr/tag/${tag}`, available: true },
-  'de': { url: `/de/tag/${tag}`, available: true },
-  'ja': { url: `/ja/tag/${tag}`, available: true },
-};
+const translationLinks = Object.fromEntries(
+  siteConfig.supportedLocales.map((loc) => [loc, { url: `/${loc}/tag/${normalizedTagId}`, available: true }])
+) as Record<SupportedLocale, { url: string; available: boolean }>;
 ---
 
 <BaseLayout
   locale={locale}
-  title={`#${tag} — ${t.tagsLabel}`}
-  description={`All articles tagged with #${tag}`}
+  title={`${displayName} — ${t.tagsLabel}`}
+  description={`Articles tagged with #${displayName} (${normalizedTagId})`}
   canonicalUrl={canonicalUrl}
   alternateHreflangs={alternateHreflangs}
   translationLinks={translationLinks}
 >
   <div class="mx-auto max-w-7xl px-4 sm:px-8 lg:px-12 py-8 sm:py-12 space-y-12">
     <header class="border-b border-[#e5e5e0] pb-8 space-y-4">
-      <div class="text-xs uppercase font-semibold tracking-widest text-[#737373]">
-        {t.tagsLabel}
+      <div class="flex items-center gap-2 text-xs uppercase font-semibold tracking-widest text-[#737373]">
+        <a href={`/${locale}/tags`} class="hover:underline">{t.tagsLabel}</a>
+        <span>/</span>
+        <span class="font-mono text-[#a3a3a3]">{normalizedTagId}</span>
       </div>
       <h1 class="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-[#1a1a1a]">
-        #{tag}
+        #{displayName}
       </h1>
 
       <!-- Tag cloud pill list -->
       <div class="flex flex-wrap gap-2 pt-4">
         {sortedTags.map(([tItem, count]) => {
-          const isActive = tItem.toLowerCase() === tag.toLowerCase();
+          const isActive = tItem.toLowerCase() === normalizedTagId;
+          const itemDisplayName = getTagDisplayName(tItem, locale);
           return (
             <a
               href={`/${locale}/tag/${encodeURIComponent(tItem)}`}
@@ -94,7 +94,7 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
                   : 'bg-[#f5f4ef] text-[#525252] hover:bg-[#e8e6e1]'
               }`}
             >
-              <span>#{tItem}</span>
+              <span>#{itemDisplayName}</span>
               <span class="text-[10px] opacity-60">({count})</span>
             </a>
           );
@@ -104,8 +104,11 @@ const translationLinks: Record<SupportedLocale, { url: string; available: boolea
 
     <div>
       {articles.length === 0 ? (
-        <div class="py-12 text-center text-[#737373] font-serif">
-          {t.noArticlesFound}
+        <div class="py-12 text-center text-[#737373] font-serif space-y-2">
+          <p>{t.noArticlesFound}</p>
+          <a href={`/${locale}/tags`} class="text-xs font-sans underline text-[#1a1a1a]">
+            {t.tagsLabel} →
+          </a>
         </div>
       ) : (
         <div class="divide-y divide-[#ecebe6]">
