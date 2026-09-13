@@ -200,16 +200,15 @@ const jsonLd = {
         </p>
       </div>
 
-      <!-- Parallel Editions Translation Bar -->
+      <!-- Parallel Editions Translation Bar (Displays real translations only) -->
       <div class="pt-6 border-t border-[#e6e2d8] flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-mono">
         <span class="text-[#88847b] uppercase tracking-wider">
           {t.availableIn}:
         </span>
         <div class="flex items-center gap-2.5">
-          {siteConfig.supportedLocales.map((loc, idx) => {
+          {siteConfig.supportedLocales.filter((loc) => translationLinks[loc]?.available).map((loc, idx) => {
             const isCurrent = loc === locale;
             const linkInfo = translationLinks[loc];
-            const hasTranslation = linkInfo ? linkInfo.available : false;
             const shortCode = loc === 'zh-CN' ? 'ZH' : loc.toUpperCase();
 
             return (
@@ -219,20 +218,13 @@ const jsonLd = {
                   <span class="font-bold text-[#1b1a18] underline underline-offset-4 decoration-1 decoration-[#1b1a18]">
                     {shortCode}
                   </span>
-                ) : hasTranslation ? (
+                ) : (
                   <a
                     href={linkInfo.url}
                     class="text-[#88847b] hover:text-[#1b1a18] transition-colors"
                   >
                     {shortCode}
                   </a>
-                ) : (
-                  <span
-                    title={t.translationMissing}
-                    class="text-[#c8c4b7] line-through cursor-not-allowed"
-                  >
-                    {shortCode}
-                  </span>
                 )}
               </div>
             );
@@ -265,6 +257,32 @@ const jsonLd = {
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
       <!-- Article Text Stream (8 cols) -->
       <main class="lg:col-span-8 min-w-0 max-w-[68ch]">
+        <!-- Mobile Table of Contents (Accessible, static-first) -->
+        {tocItems.length > 0 && (
+          <details class="lg:hidden mb-10 border border-[#e6e2d8] bg-[#f5f3ec] p-4 text-xs font-mono">
+            <summary class="cursor-pointer font-bold uppercase tracking-wider text-[#1b1a18] select-none flex items-center justify-between">
+              <span>{t.tableOfContents}</span>
+              <span class="text-[#88847b] text-[10px]">{tocItems.length} SECTIONS ↓</span>
+            </summary>
+            <ul class="mt-4 space-y-2.5 border-t border-[#e6e2d8] pt-3 font-sans text-xs">
+              {tocItems.map((item, idx) => {
+                const indent = item.depth === 3 ? 'pl-3' : item.depth === 4 ? 'pl-6' : 'pl-0';
+                return (
+                  <li class={indent}>
+                    <a
+                      href={`#${item.id}`}
+                      class="block leading-relaxed text-[#57544e] hover:text-[#1b1a18] transition-colors"
+                    >
+                      <span class="text-[10px] font-mono text-[#88847b] mr-1.5">{item.depth === 2 ? `0${idx + 1}` : '·'}</span>
+                      <span>{item.text}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </details>
+        )}
+
         <div class="editorial-prose">
           <Content components={{ Figure, Note }} />
         </div>

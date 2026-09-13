@@ -29,6 +29,11 @@ const fallbackLinks: Record<SupportedLocale, { url: string; available: boolean }
 };
 
 const activeTranslationLinks = translationLinks || fallbackLinks;
+
+// Strictly display only existing translations when in specific article context
+const displayLocales = translationLinks
+  ? siteConfig.supportedLocales.filter((loc) => translationLinks[loc]?.available)
+  : siteConfig.supportedLocales;
 ---
 
 <header class="sticky top-0 z-40 w-full border-b border-[#e6e2d8] bg-[#f9f8f5]/95 backdrop-blur-[2px] transition-colors">
@@ -60,12 +65,11 @@ const activeTranslationLinks = translationLinks || fallbackLinks;
       ))}
     </nav>
 
-    <!-- Right: Lightweight Typographic Language Switcher -->
+    <!-- Right: Lightweight Typographic Language Switcher (Displays real translations only) -->
     <div class="hidden lg:flex items-center gap-2.5 text-[11px] font-mono tracking-wider">
-      {siteConfig.supportedLocales.map((loc, idx) => {
+      {displayLocales.map((loc, idx) => {
         const isActive = loc === currentLocale;
         const linkInfo = activeTranslationLinks[loc];
-        const hasTranslation = linkInfo ? linkInfo.available : true;
         const targetUrl = linkInfo ? linkInfo.url : `/${loc}`;
         const shortCode = loc === 'zh-CN' ? 'ZH' : loc.toUpperCase();
 
@@ -74,13 +78,11 @@ const activeTranslationLinks = translationLinks || fallbackLinks;
             {idx > 0 && <span class="text-[#d3cebf]">/</span>}
             <a
               href={targetUrl}
-              title={hasTranslation ? localeDisplayNames[loc] : `${localeDisplayNames[loc]} (${t.translationMissing})`}
+              title={localeDisplayNames[loc]}
               class={`transition-colors py-0.5 ${
                 isActive
                   ? 'text-[#1b1a18] font-bold underline underline-offset-4 decoration-1 decoration-[#1b1a18]'
-                  : hasTranslation
-                    ? 'text-[#88847b] hover:text-[#1b1a18]'
-                    : 'text-[#c8c4b7] line-through cursor-not-allowed'
+                  : 'text-[#88847b] hover:text-[#1b1a18]'
               }`}
             >
               {shortCode}
@@ -121,10 +123,9 @@ const activeTranslationLinks = translationLinks || fallbackLinks;
         Edition / Language
       </div>
       <div class="flex flex-wrap items-center gap-4 text-xs font-mono">
-        {siteConfig.supportedLocales.map((loc) => {
+        {displayLocales.map((loc) => {
           const isActive = loc === currentLocale;
           const linkInfo = activeTranslationLinks[loc];
-          const hasTranslation = linkInfo ? linkInfo.available : true;
           const targetUrl = linkInfo ? linkInfo.url : `/${loc}`;
           const shortCode = loc === 'zh-CN' ? 'ZH' : loc.toUpperCase();
 
@@ -134,9 +135,7 @@ const activeTranslationLinks = translationLinks || fallbackLinks;
               class={`py-1 ${
                 isActive
                   ? 'text-[#1b1a18] font-bold border-b border-[#1b1a18]'
-                  : hasTranslation
-                    ? 'text-[#57544e] hover:text-[#1b1a18]'
-                    : 'text-[#c8c4b7] line-through'
+                  : 'text-[#57544e] hover:text-[#1b1a18]'
               }`}
             >
               {shortCode} ({localeDisplayNames[loc]})

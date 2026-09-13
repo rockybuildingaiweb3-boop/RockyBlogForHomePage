@@ -8,6 +8,7 @@ import {
   getFeaturedArticles,
   getLatestArticles,
   getArticlesByCategory,
+  validateContentIntegrity,
 } from '../../lib/content';
 import { calculateReadingMetrics } from '../../lib/readingTime';
 import { uiTranslations } from '../../i18n/translations';
@@ -23,6 +24,8 @@ const { locale } = Astro.params as { locale: SupportedLocale };
 const t = uiTranslations[locale];
 
 const allPosts = await getCollection('blog');
+validateContentIntegrity(allPosts);
+
 const featuredArticles = getFeaturedArticles(allPosts, locale, 4);
 const latestArticles = getLatestArticles(allPosts, locale, 10);
 

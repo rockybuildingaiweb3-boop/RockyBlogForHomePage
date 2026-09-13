@@ -25,8 +25,7 @@ const { items, titleLabel } = Astro.props;
           <li class={indent}>
             <a
               href={`#${item.id}`}
-              data-toc-id={item.id}
-              class="toc-link block w-full text-left transition-colors leading-relaxed text-[#757168] hover:text-[#1b1a18]"
+              class="block w-full text-left transition-colors leading-relaxed text-[#757168] hover:text-[#1b1a18] hover:translate-x-0.5 transform"
             >
               <span class="text-[10px] font-mono text-[#a5a095] mr-1.5">{item.depth === 2 ? `0${idx + 1}` : '·'}</span>
               <span>{item.text}</span>
@@ -37,79 +36,3 @@ const { items, titleLabel } = Astro.props;
     </ul>
   </nav>
 )}
-
-<script is:inline>
-  (() => {
-    const toc = document.getElementById('table-of-contents');
-    if (!toc) return;
-
-    const links = Array.from(toc.querySelectorAll('.toc-link'));
-    if (links.length === 0) return;
-
-    const headingMap = new Map();
-    links.forEach((link) => {
-      const id = link.getAttribute('data-toc-id');
-      if (id) {
-        const heading = document.getElementById(id);
-        if (heading) {
-          headingMap.set(heading, link);
-        }
-      }
-    });
-
-    const activeClasses = ['font-semibold', 'text-[#1b1a18]', 'translate-x-1'];
-    const inactiveClasses = ['text-[#757168]', 'font-normal'];
-
-    function setActive(activeLink) {
-      links.forEach((link) => {
-        if (link === activeLink) {
-          link.classList.remove(...inactiveClasses);
-          link.classList.add(...activeClasses);
-        } else {
-          link.classList.remove(...activeClasses);
-          link.classList.add(...inactiveClasses);
-        }
-      });
-    }
-
-    // Initialize first link as active if no hash
-    if (!window.location.hash && links.length > 0) {
-      setActive(links[0]);
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const link = headingMap.get(entry.target);
-            if (link) {
-              setActive(link);
-              break;
-            }
-          }
-        }
-      },
-      { rootMargin: '-80px 0px -60% 0px' }
-    );
-
-    headingMap.forEach((_, heading) => {
-      observer.observe(heading);
-    });
-
-    // Smooth scroll on click
-    links.forEach((link) => {
-      link.addEventListener('click', (e) => {
-        const id = link.getAttribute('data-toc-id');
-        if (id) {
-          const target = document.getElementById(id);
-          if (target) {
-            e.preventDefault();
-            target.scrollIntoView({ behavior: 'smooth' });
-            window.history.replaceState(null, '', '#' + id);
-            setActive(link);
-          }
-        }
-      });
-    });
-  })();
-</script>

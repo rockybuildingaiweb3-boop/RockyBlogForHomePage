@@ -195,3 +195,36 @@ body {
   margin-top: 3em;
   margin-bottom: 3em;
 }
+
+/* Editorial Data Tables */
+.editorial-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2.25em;
+  margin-bottom: 2.25em;
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+}
+
+.editorial-prose th {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid var(--editorial-charcoal);
+  color: var(--editorial-charcoal);
+}
+
+.editorial-prose td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--editorial-line);
+  color: #3b3935;
+}
+
+.editorial-prose tr:hover td {
+  background-color: rgba(243, 240, 232, 0.4);
+}
+
