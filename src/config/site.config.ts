@@ -36,11 +36,11 @@ export const PRODUCTION_SITE_URL = (envSiteUrl || 'https://rockychen.me').replac
 
 export const siteConfig: SiteConfig = {
   siteName: {
-    'zh-CN': '技术笔记与系统架构',
-    'en': 'Tech Notes & Systems Architecture',
-    'fr': 'Notes Techniques et Architecture',
-    'de': 'Tech-Notizen & Systemarchitektur',
-    'ja': '技術ノートとシステム設計',
+    'zh-CN': 'ROCKY — 个人技术期刊',
+    'en': 'ROCKY — Personal Technical Journal',
+    'fr': 'ROCKY — Journal Technique Personnel',
+    'de': 'ROCKY — Persönliche Fachpublikation',
+    'ja': 'ROCKY — 個人技術ジャーナル',
   },
   siteDescription: {
     'zh-CN': '面向 IT 从业者的个人技术博客与长期知识积累系统，专注于软件工程、AI Agent、前端架构与系统设计。',

@@ -10,13 +10,15 @@ const targetUrl = `/${siteConfig.defaultLocale}`;
     <meta charset="utf-8" />
     <meta http-equiv="refresh" content={`0;url=${targetUrl}`} />
     <link rel="canonical" href={`${siteConfig.siteUrl}${targetUrl}`} />
-    <title>Redirecting to {siteConfig.siteName['zh-CN']}...</title>
+    <title>Redirecting to ROCKY — Software · AI · Design...</title>
   </head>
-  <body class="bg-[#faf9f6] text-[#1a1a1a] flex min-h-screen items-center justify-center font-sans">
-    <div class="text-center p-6">
-      <h1 class="font-serif text-2xl font-bold mb-2">{siteConfig.siteName['zh-CN']}</h1>
-      <p class="text-sm text-[#737373] mb-4">Redirecting to technical blog...</p>
-      <a href={targetUrl} class="text-xs font-mono underline hover:text-[#000000]">Click here if not redirected automatically</a>
+  <body class="bg-[#f9f8f5] text-[#1b1a18] flex min-h-screen items-center justify-center font-sans">
+    <div class="text-center p-6 space-y-3">
+      <h1 class="font-serif text-2xl font-bold tracking-tight">ROCKY</h1>
+      <p class="text-xs font-mono text-[#88847b] uppercase tracking-wider">Personal Technical Journal · Software · AI · Design</p>
+      <div class="pt-2">
+        <a href={targetUrl} class="text-xs font-mono underline text-[#57544e] hover:text-[#1b1a18]">Click here if not redirected automatically</a>
+      </div>
     </div>
   </body>
 </html>
